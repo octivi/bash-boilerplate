@@ -27,6 +27,7 @@
 - [Pure Bash Bible](https://github.com/dylanaraps/pure-bash-bible)
 - [Unix shell script tactics - best practices style guide](https://github.com/SixArm/unix-shell-script-tactics)
 - [Shell Scripts Matter](https://dev.to/thiht/shell-scripts-matter)
+- [Bash tips: Colors and formatting](https://misc.flogisoft.com/bash/tip_colors_and_formatting)
 
 ### Boilerplates
 
