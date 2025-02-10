@@ -20,6 +20,8 @@
 
 ## Other resources
 
+[Awesome Bash - A curated list of delightful Bash scripts and resources](https://github.com/awesome-lists/awesome-bash)
+
 ### Style Guides
 
 - [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
