@@ -8,7 +8,7 @@
 
 ## Features
 
-- Supports [Unofficial Bash "Strict Mode](http://redsymbol.net/articles/unofficial-bash-strict-mode/)
+- Supports [Unofficial Bash "Strict Mode"](http://redsymbol.net/articles/unofficial-bash-strict-mode/)
 - Supports `DEBUG` environment variable
 - Supports `NO_COLOR` environment variable for [disabling colors](https://no-color.org/)
 - Supports `FORCE_COLOR` environment variable
