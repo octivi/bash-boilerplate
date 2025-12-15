@@ -4,7 +4,7 @@
 #
 # Part of Octivi Bash Boilerplate https://github.com/octivi/bash-boilerplate
 #
-# Specify the shell for shellcheck as we don't use shebang here
+# Specify the shell for ShellCheck since we do not use a shebang here
 # shellcheck shell=bash
 
 ################################################################################

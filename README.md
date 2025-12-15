@@ -6,28 +6,33 @@
 > should rewrite it in a more structured language now. --
 > [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
 
-## Features
+Octivi Bash Boilerplate (OBB) is a lightweight starting point for Bash scripts that promotes consistent structure and
+safe defaults. With ready-to-use helpers and auto-generated documentation, it helps you ship maintainable CLI utilities
+faster and with fewer surprises.
 
-- Supports [Unofficial Bash "Strict Mode"](http://redsymbol.net/articles/unofficial-bash-strict-mode/)
-- Supports `DEBUG` environment variable
-- Supports `NO_COLOR` environment variable for [disabling colors](https://no-color.org/)
-- Supports `FORCE_COLOR` environment variable
-- Supports ANSI colors
-- Logging helpers
-- Built-in documentation (generate `-h` output based on comments)
-- Supports
+## Key features
+
+- Enforces [Unofficial Bash "Strict Mode"](http://redsymbol.net/articles/unofficial-bash-strict-mode/) to reduce
+  hard-to-track runtime errors
+- Enables verbose diagnostics through the `DEBUG` environment variable
+- Honors the `NO_COLOR` ([disabling colors](https://no-color.org/)) and `FORCE_COLOR` environment variables and
+  supports ANSI colors out of the box
+- Exposes logging helpers for uniform, readable output
+- Generates `-h` help text from inline comments, so documentation stays close to the code
+- Handles option parsing through
   [POSIX getopts](https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/14203146#14203146)
+  for predictable CLI behavior
 
 ## Other resources
 
 [Awesome Bash - A curated list of delightful Bash scripts and resources](https://github.com/awesome-lists/awesome-bash)
 
-### Style Guides
+### Style guides
 
 - [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
 - [Bash FAQ](https://mywiki.wooledge.org/BashFAQ)
 - [Pure Bash Bible](https://github.com/dylanaraps/pure-bash-bible)
-- [Unix shell script tactics - best practices style guide](https://github.com/SixArm/unix-shell-script-tactics)
+- [Unix shell script tactics — best practices style guide](https://github.com/SixArm/unix-shell-script-tactics)
 - [Shell Scripts Matter](https://dev.to/thiht/shell-scripts-matter)
 - [Bash tips: Colors and formatting](https://misc.flogisoft.com/bash/tip_colors_and_formatting)
 
@@ -46,4 +51,4 @@
 
 ## License
 
-All content is licensed under the terms of [The MIT License](LICENSE).
+All content is provided under the terms of [The MIT License](LICENSE).
