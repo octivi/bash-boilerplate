@@ -23,6 +23,11 @@ faster and with fewer surprises.
   [POSIX getopts](https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/14203146#14203146)
   for predictable CLI behavior
 
+## Projects that use Octivi Bash Boilerplate
+
+- [BorgBackup Wrapper](https://github.com/octivi/borg-backup-wrapper) - a wrapper around the deduplicating archiver
+  [BorgBackup](https://www.borgbackup.org/) that streamlines everyday tasks across multiple repositories.
+
 ## Other resources
 
 [Awesome Bash - A curated list of delightful Bash scripts and resources](https://github.com/awesome-lists/awesome-bash)
