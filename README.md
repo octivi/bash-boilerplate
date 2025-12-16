@@ -23,6 +23,38 @@ faster and with fewer surprises.
   [POSIX getopts](https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/14203146#14203146)
   for predictable CLI behavior
 
+## Install
+
+### Manual
+
+Just download
+
+```
+# or https://github.com/octivi/bash-boilerplate/releases/latest/download/octivi-bash-boilerplate if you want always latest release
+sudo curl -fL -o /usr/local/share/octivi-bash-boilerplate https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate
+```
+
+### Ansible
+
+One simple task to install `octivi-bash-boilerplate`
+
+```
+- name: 'Install Octivi Bash Boilerplate (OBB)'
+  ansible.builtin.get_url:
+    # or https://github.com/octivi/bash-boilerplate/releases/latest/download/octivi-bash-boilerplate if you want always latest release
+    url: 'https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate'
+    dest: '/usr/local/share/bash-boilerplate'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+    # or https://github.com/octivi/bash-boilerplate/releases/latest/download/octivi-bash-boilerplate.sha256 if you want always latest release
+    checksum: 'sha256:https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate.sha256'
+  register: '__bash_boilerplate_download'
+  until: __bash_boilerplate_download is succeeded
+  retries: 5
+  delay: 2
+```
+
 ## Projects that use Octivi Bash Boilerplate
 
 - [BorgBackup Wrapper](https://github.com/octivi/borg-backup-wrapper) - a wrapper around the deduplicating archiver
