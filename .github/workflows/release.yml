@@ -40,6 +40,7 @@ jobs:
       - name: Generate SHA256 checksum
         run: |
           sha256sum octivi-bash-boilerplate > octivi-bash-boilerplate.sha256
+          sha256sum octivi-bash-boilerplate-header > octivi-bash-boilerplate-header.sha256
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
@@ -48,6 +49,8 @@ jobs:
           files: |
             ./octivi-bash-boilerplate
             ./octivi-bash-boilerplate.sha256
+            ./octivi-bash-boilerplate-header
+            ./octivi-bash-boilerplate-header.sha256
           body: |
             ## Install
 

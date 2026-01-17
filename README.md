@@ -6,9 +6,16 @@
 > should rewrite it in a more structured language now. --
 > [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
 
+## Octivi Bash Boilerplate (OBB)
+
 Octivi Bash Boilerplate (OBB) is a lightweight starting point for Bash scripts that promotes consistent structure and
 safe defaults. With ready-to-use helpers and auto-generated documentation, it helps you ship maintainable CLI utilities
 faster and with fewer surprises.
+
+## Octivi Bash Boilerplate (OBB) Header
+
+Octivi Bash Boilerplate (OBB) Header is minimalistic version of the bash boilerplate to be used in scripts.
+Just copy and paste this code at the beginning of your bash script files.
 
 ## Key features
 
