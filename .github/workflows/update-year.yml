@@ -90,10 +90,10 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
         with:
-          branch: update-year-in-header
+          branch: update-year-in-headers
           delete-branch: true
           commit-message: "chore: Update year in headers"
-          title: "chore: Update year in headers"
+          title: Update year in headers
           body: |
             Automated update of year in headers.
           labels: |
