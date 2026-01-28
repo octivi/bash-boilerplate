@@ -38,7 +38,7 @@ Just download
 
 ```
 # or https://github.com/octivi/bash-boilerplate/releases/latest/download/octivi-bash-boilerplate if you want always latest release
-sudo curl -fL -o /usr/local/share/octivi-bash-boilerplate https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate
+sudo curl -fsSLo /usr/local/share/octivi-bash-boilerplate https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate
 ```
 
 ### Ansible
