@@ -265,8 +265,8 @@ function die() {
 # Usage: require_bash_version 4 4 || die 2 "At least Bash 4.4 is required"
 #
 # Arguments:
-#   - minor
 #   - major
+#   - minor
 #
 # Returns:
 #   - 0 bash version is at least as required
