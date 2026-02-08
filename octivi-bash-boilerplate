@@ -85,7 +85,7 @@ function usage() {
 
 
 ################################################################################
-# Output current timestamp in ISO 8601 format (2020-02-11T08:56:00+00:00)
+# Output current timestamp in ISO 8601 format (2020-02-11T08:56:00+0000)
 # to stdout
 #
 # Usage: now
