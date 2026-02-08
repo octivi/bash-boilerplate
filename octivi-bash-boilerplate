@@ -249,7 +249,7 @@ function die() {
   fi
 
   if [[ -v message ]]; then
-    if [[ $ret ]]; then
+    if (( ret != 0 )); then
       error "${message}"
     else
       print "${message}"
