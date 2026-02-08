@@ -53,7 +53,7 @@ One simple task to install `octivi-bash-boilerplate`
   ansible.builtin.get_url:
     # or https://github.com/octivi/bash-boilerplate/releases/latest/download/octivi-bash-boilerplate if you want always latest release
     url: 'https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate'
-    dest: '/usr/local/share/bash-boilerplate'
+    dest: '/usr/local/share/octivi-bash-boilerplate'
     owner: 'root'
     group: 'root'
     mode: '0644'
