@@ -33,6 +33,10 @@ Just copy and paste this code at the beginning of your bash script files.
   [POSIX getopts](https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash/14203146#14203146)
   for predictable CLI behavior
 
+## Requirements
+
+- Bash 4.4 or newer
+
 ## Install
 
 ### Manual

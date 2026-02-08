@@ -7,6 +7,27 @@
 # Specify the shell for ShellCheck since we do not use a shebang here
 # shellcheck shell=bash
 
+# Minimum supported Bash version for Octivi Bash Boilerplate.
+if [[ -z ${__obb_min_bash_major+x} ]]; then
+  readonly __obb_min_bash_major=4
+fi
+if [[ -z ${__obb_min_bash_minor+x} ]]; then
+  readonly __obb_min_bash_minor=4
+fi
+
+if (( BASH_VERSINFO[0] < __obb_min_bash_major || (BASH_VERSINFO[0] == __obb_min_bash_major && BASH_VERSINFO[1] < __obb_min_bash_minor) )); then
+  printf 'ERROR: Octivi Bash Boilerplate requires Bash %d.%d+ (current: %d.%d).\n' \
+    "${__obb_min_bash_major}" \
+    "${__obb_min_bash_minor}" \
+    "${BASH_VERSINFO[0]}" \
+    "${BASH_VERSINFO[1]}" \
+    1>&2
+  if [[ ${BASH_SOURCE[0]} != "$0" ]]; then
+    return 2
+  fi
+  exit 2
+fi
+
 ################################################################################
 # Define colors and formatting
 #
