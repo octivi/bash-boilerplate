@@ -15,7 +15,7 @@ Preferred: use [GitHub Security Advisories](https://github.com/octivi/bash-boile
 for this repository (private disclosure).
 
 If [GitHub Security Advisories](https://github.com/octivi/bash-boilerplate/security/advisories)
-are not available, [open a new issue](https://github.com/octivi/bash-boilerplate/security/advisories)
+are not available, [open a new issue](https://github.com/octivi/bash-boilerplate/issues/new)
 and clearly mark it as **security** in the title, or contact
 [the maintainers](https://github.com/orgs/octivi/people).
 
