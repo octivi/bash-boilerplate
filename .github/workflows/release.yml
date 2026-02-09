@@ -55,7 +55,9 @@ jobs:
             ## Install
 
             ```bash
-            sudo curl -fsSLo /usr/local/share/octivi-bash-boilerplate https://github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/releases/download/${{ env.TAG_NAME }}/octivi-bash-boilerplate
+            curl -fsSLO "https://github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/releases/download/${{ env.TAG_NAME }}/octivi-bash-boilerplate"
+            curl -fsSL "https://github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/releases/download/${{ env.TAG_NAME }}/octivi-bash-boilerplate.sha256" | sha256sum -c -
+            sudo install -m 0644 octivi-bash-boilerplate /usr/local/share/octivi-bash-boilerplate
             ```
           generate_release_notes: true
           fail_on_unmatched_files: true

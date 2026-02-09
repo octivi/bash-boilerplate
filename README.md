@@ -45,7 +45,9 @@ Just download
 
 ```bash
 # or https://github.com/octivi/bash-boilerplate/releases/latest/download/octivi-bash-boilerplate if you want always latest release
-sudo curl -fsSLo /usr/local/share/octivi-bash-boilerplate https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate
+curl -fsSLO https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate
+curl -fsSL https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate.sha256 | sha256sum -c -
+sudo install -m 0644 octivi-bash-boilerplate /usr/local/share/octivi-bash-boilerplate
 ```
 
 ### Ansible
