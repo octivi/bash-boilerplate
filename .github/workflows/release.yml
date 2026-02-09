@@ -54,7 +54,7 @@ jobs:
           body: |
             ## Install
 
-            ```
+            ```bash
             sudo curl -fsSLo /usr/local/share/octivi-bash-boilerplate https://github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/releases/download/${{ env.TAG_NAME }}/octivi-bash-boilerplate
             ```
           generate_release_notes: true
