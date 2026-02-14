@@ -291,7 +291,7 @@ function die() {
 #   - 1 bash version is older than required
 ################################################################################
 function require_bash_version() {
-  [[ ${BASH_VERSINFO[0]} -gt $1 || (${BASH_VERSINFO[0]} -eq $1 && ${BASH_VERSINFO[1]} -ge $2) ]]
+  (( BASH_VERSINFO[0] > $1 || (BASH_VERSINFO[0] == $1 && BASH_VERSINFO[1] >= $2) ))
   return
 }
 
