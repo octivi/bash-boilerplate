@@ -218,6 +218,76 @@ function header() {
 
 
 ################################################################################
+# Show a rotating spinner on stdout (Bash, with GNU sleep)
+#
+# Based on https://mywiki.wooledge.org/BashFAQ/034 and vendored 1-char spinners
+# from https://github.com/sindresorhus/cli-spinners/blob/main/spinners.json
+#
+# Usage: spin [spinner_name] &
+#        spin_pid=$!
+#        # long-running commands here
+#        kill "${spin_pid}"; wait "${spin_pid}" 2>/dev/null
+#
+# Arguments:
+#   - spinner_name (optional, defaults to 'dots')
+#
+# Outputs:
+#   - spinner animation
+################################################################################
+function spin() {
+  local spinner="${1:-dots}"
+  local i=0
+  local sp=''
+  local interval='0.13'
+  local n=0
+  local locale="${LC_ALL:-${LC_CTYPE:-${LANG:-}}}"
+  local spinner_data name data_interval data_sp
+
+  if [[ ${locale^^} != *UTF-8* && ${locale^^} != *UTF8* ]]; then
+    spinner='line'
+  fi
+
+  # name<TAB>interval_in_seconds<TAB>frames
+  read -r -d '' spinner_data <<'EOF' || true
+dots	0.08	⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏
+dots2	0.08	⣾⣽⣻⢿⡿⣟⣯⣷
+dots3	0.08	⠋⠙⠚⠞⠖⠦⠴⠲⠳⠓
+dots4	0.08	⠄⠆⠇⠋⠙⠸⠰⠠⠰⠸⠙⠋⠇⠆
+dots5	0.08	⠋⠙⠚⠒⠂⠂⠒⠲⠴⠦⠖⠒⠐⠐⠒⠓⠋
+dots6	0.08	⠁⠉⠙⠚⠒⠂⠂⠒⠲⠴⠤⠄⠄⠤⠴⠲⠒⠂⠂⠒⠚⠙⠉⠁
+dots7	0.08	⠈⠉⠋⠓⠒⠐⠐⠒⠖⠦⠤⠠⠠⠤⠦⠖⠒⠐⠐⠒⠓⠋⠉⠈
+dots8	0.08	⠁⠁⠉⠙⠚⠒⠂⠂⠒⠲⠴⠤⠄⠄⠤⠠⠠⠤⠦⠖⠒⠐⠐⠒⠓⠋⠉⠈⠈
+dots9	0.08	⢹⢺⢼⣸⣇⡧⡗⡏
+dots10	0.08	⢄⢂⢁⡁⡈⡐⡠
+dots11	0.1	⠁⠂⠄⡀⢀⠠⠐⠈
+dots13	0.08	⣼⣹⢻⠿⡟⣏⣧⣶
+dots8Bit	0.08	⠀⠁⠂⠃⠄⠅⠆⠇⡀⡁⡂⡃⡄⡅⡆⡇⠈⠉⠊⠋⠌⠍⠎⠏⡈⡉⡊⡋⡌⡍⡎⡏⠐⠑⠒⠓⠔⠕⠖⠗⡐⡑⡒⡓⡔⡕⡖⡗⠘⠙⠚⠛⠜⠝⠞⠟⡘⡙⡚⡛⡜⡝⡞⡟⠠⠡⠢⠣⠤⠥⠦⠧⡠⡡⡢⡣⡤⡥⡦⡧⠨⠩⠪⠫⠬⠭⠮⠯⡨⡩⡪⡫⡬⡭⡮⡯⠰⠱⠲⠳⠴⠵⠶⠷⡰⡱⡲⡳⡴⡵⡶⡷⠸⠹⠺⠻⠼⠽⠾⠿⡸⡹⡺⡻⡼⡽⡾⡿⢀⢁⢂⢃⢄⢅⢆⢇⣀⣁⣂⣃⣄⣅⣆⣇⢈⢉⢊⢋⢌⢍⢎⢏⣈⣉⣊⣋⣌⣍⣎⣏⢐⢑⢒⢓⢔⢕⢖⢗⣐⣑⣒⣓⣔⣕⣖⣗⢘⢙⢚⢛⢜⢝⢞⢟⣘⣙⣚⣛⣜⣝⣞⣟⢠⢡⢢⢣⢤⢥⢦⢧⣠⣡⣢⣣⣤⣥⣦⣧⢨⢩⢪⢫⢬⢭⢮⢯⣨⣩⣪⣫⣬⣭⣮⣯⢰⢱⢲⢳⢴⢵⢶⢷⣰⣱⣲⣳⣴⣵⣶⣷⢸⢹⢺⢻⢼⢽⢾⢿⣸⣹⣺⣻⣼⣽⣾⣿
+sand	0.08	⠁⠂⠄⡀⡈⡐⡠⣀⣁⣂⣄⣌⣔⣤⣥⣦⣮⣶⣷⣿⡿⠿⢟⠟⡛⠛⠫⢋⠋⠍⡉⠉⠑⠡⢁
+line	0.13	-\|/
+arrow	0.1	←↖↑↗→↘↓↙
+dqpb	0.1	dqpb
+layer	0.15	-=≡
+EOF
+
+  while IFS=$'\t' read -r name data_interval data_sp; do
+    if [[ ${name} == "${spinner}" ]]; then
+      interval="${data_interval}"
+      sp="${data_sp}"
+      break
+    fi
+  done <<< "${spinner_data}"
+
+  [[ -n ${sp} ]] || sp='-\|/'
+
+  n=${#sp}
+  printf ' '
+  while sleep "${interval}"; do
+    printf '\b%s' "${sp:i++%n:1}"
+  done
+}
+
+
+################################################################################
 # Print an optional message and exit with either the given status or that of the
 # most recent command
 #
