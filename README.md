@@ -77,6 +77,14 @@ One simple task to install `octivi-bash-boilerplate`
 - [BorgBackup Wrapper](https://github.com/octivi/borg-backup-wrapper) - a wrapper around the deduplicating archiver
   [BorgBackup](https://www.borgbackup.org/) that streamlines everyday tasks across multiple repositories.
 
+## How to test on a specific Bash version
+
+The easiest way is to use Docker, for example to test Bash 3.2:
+
+```bash
+docker run -it --rm -v "$PWD":/work -w /work bash:3.2 bash
+```
+
 ## Other resources
 
 [Awesome Bash - A curated list of delightful Bash scripts and resources](https://github.com/awesome-lists/awesome-bash)
