@@ -361,6 +361,25 @@ function is_sourced() {
 }
 
 
+################################################################################
+# Check if script is interactive
+#
+# Based on https://mywiki.wooledge.org/BashFAQ/109
+#
+# Usage: is_interactive
+#
+# Returns:
+#   - 0 being interactive
+#   - 1 not being interactive
+#
+#################################################################################
+function is_interactive() {
+  [[ $- == *i* ]] && return 0
+  [[ -t 0 ]]
+  return
+}
+
+
 # Disable colors if script is piped
 if is_piped; then
   NO_COLOR=1
