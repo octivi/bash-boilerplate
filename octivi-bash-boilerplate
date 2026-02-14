@@ -14,7 +14,7 @@
 #   - https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
 #   - https://misc.flogisoft.com/bash/tip_colors_and_formatting
 #   - https://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
-#   - https://superuser.com/questions/301353/escape-non-printing-characters-in-a-function-for-a-bash-prompt
+#   - https://superuser.com/q/301353
 ################################################################################
 
 # \x1b (ESC Escape) is hex equivalent of Bash '\e' that can be used more widely.
@@ -53,8 +53,7 @@ readonly __c_ok="${__c_green}"
 #
 # Usage: usage
 #
-# Outputs:
-#   - Help message defined in the script code, prefixed with '#/'
+# Outputs: Help message defined in the script code, prefixed with '#/'
 ################################################################################
 function usage() {
   # __my_path is assigned in script that includes this library
@@ -64,14 +63,12 @@ function usage() {
 
 
 ################################################################################
-# Output current timestamp in ISO 8601 format (2020-02-11T08:56:00+0000)
-# to stdout
+# Output current timestamp in ISO 8601 format (2020-02-11T08:56:00+0000) to stdout
 #
 # Usage: now
 #        echo "$(now)"
 #
-# Outputs:
-#   - timestamp
+# Outputs: timestamp
 ################################################################################
 function now() {
   printf '%(%Y-%m-%dT%H:%M:%S%z)T' -1
@@ -81,14 +78,10 @@ function now() {
 ################################################################################
 # Output timestamp and message to stdout
 #
-# Usage: echo "message" | print
-#        print "message"
+# Usage: echo "message to print on stdout" | print
+#        print [message to print on stdout]
 #
-# Arguments:
-#   - message to print on stdout (optional)
-#
-# Outputs:
-#   - timestamp and message
+# Outputs: timestamp and message
 ################################################################################
 function print() {
   if (($# == 0)) && [[ -p /dev/stdin ]]; then
@@ -106,14 +99,10 @@ function print() {
 ################################################################################
 # Print error message to stderr
 #
-# Usage: echo "message" | error
-#        error "message"
+# Usage: echo "message to print on stderr" | error
+#        error [message to print on stderr]
 #
-# Arguments:
-#   - message to print on stderr (optional)
-#
-# Outputs:
-#   - message
+# Outputs: message
 ################################################################################
 function error() {
   if (($# == 0)) && [[ -p /dev/stdin ]]; then
@@ -135,14 +124,10 @@ function error() {
 ################################################################################
 # Print warning message to stderr
 #
-# Usage: echo "message" | warning
-#        warning "message"
+# Usage: echo "message to print on stderr" | warning
+#        warning [message to print on stderr]
 #
-# Arguments:
-#   - message to print on stderr (optional)
-#
-# Outputs:
-#   - message
+# Outputs: message
 ################################################################################
 function warning() {
   if (($# == 0)) && [[ -p /dev/stdin ]]; then
@@ -164,14 +149,10 @@ function warning() {
 ################################################################################
 # Print OK message to stdout
 #
-# Usage: echo "message" | ok
-#        ok "message"
+# Usage: echo "message to print on stdout" | ok
+#        ok [message to print on stdout]
 #
-# Arguments:
-#   - message to print on stdout (optional)
-#
-# Outputs:
-#   - message
+# Outputs: message
 ################################################################################
 function ok() {
   if (($# == 0)) && [[ -p /dev/stdin ]]; then
@@ -193,14 +174,10 @@ function ok() {
 ################################################################################
 # Print a bigger header to stdout
 #
-# Usage: echo "header" | header
-#        header "header"
+# Usage: echo "header to print on stdout" | header
+#        header [header to print on stdout]
 #
-# Arguments:
-#   - header to print on stdout (optional)
-#
-# Outputs:
-#   - header
+# Outputs: header
 ################################################################################
 function header() {
   if (($# == 0)) && [[ -p /dev/stdin ]]; then
@@ -223,16 +200,12 @@ function header() {
 # Based on https://mywiki.wooledge.org/BashFAQ/034 and vendored 1-char spinners
 # from https://github.com/sindresorhus/cli-spinners/blob/main/spinners.json
 #
-# Usage: spin [spinner_name] &
+# Usage: spin [spinner_name, defaults to 'dots'] &
 #        spin_pid=$!
 #        # long-running commands here
 #        kill "${spin_pid}"; wait "${spin_pid}" 2>/dev/null
 #
-# Arguments:
-#   - spinner_name (optional, defaults to 'dots')
-#
-# Outputs:
-#   - spinner animation
+# Outputs: spinner animation
 ################################################################################
 function spin() {
   local spinner="${1:-dots}"
@@ -288,20 +261,14 @@ EOF
 
 
 ################################################################################
-# Print an optional message and exit with either the given status or that of the
-# most recent command
+# Print an optional message and exit with either the given status or that of the most recent command
 #
 # Based on https://mywiki.wooledge.org/BashFAQ/101
 #
-# Usage: some_command || die [status code] [message]
-#        die [status code] [message]
+# Usage: some_command || die [status code] [message to print on exit]
+#        die [status code] [message to print on exit]
 #
-# Arguments:
-#   - status code (optional)
-#   - message to print on exit (optional)
-#
-# Outputs:
-#   - message
+# Outputs: message
 ################################################################################
 function die() {
   # Get the exit code of the most recent command.
@@ -329,15 +296,10 @@ function die() {
 ################################################################################
 # Check if this instance of bash version is at least X.Y
 #
-# Usage: require_bash_version 4 4 || die 2 "At least Bash 4.4 is required"
+# Usage: require_bash_version [major] [minor]
+#        require_bash_version 4 4 || die 2 "At least Bash 4.4 is required"
 #
-# Arguments:
-#   - major
-#   - minor
-#
-# Returns:
-#   - 0 bash version is at least as required
-#   - 1 bash version is older than required
+# Returns: 0 if bash version is at least required; 1 if bash version is older
 ################################################################################
 function require_bash_version() {
   (( BASH_VERSINFO[0] > $1 || (BASH_VERSINFO[0] == $1 && BASH_VERSINFO[1] >= $2) ))
@@ -348,15 +310,10 @@ function require_bash_version() {
 ################################################################################
 # Check if required command is available
 #
-# Usage: require_command || die 2 "Cannot find 'X'. Install 'xxx' package"
-#        require_command || die 2
+# Usage: require_command [required command] || die 2 "Cannot find 'X'. Install 'xxx' package"
+#        require_command [required command] || die 2
 #
-# Arguments:
-#   - required command
-#
-# Returns:
-#   - 0 required command is available
-#   - 1 required command is not available
+# Returns: 0 if required command is available; 1 if required command is not available
 ################################################################################
 function require_command() {
   type -P "$1" > /dev/null
@@ -370,9 +327,7 @@ function require_command() {
 # Usage: require_root || die 2 "This script must be run as root"
 #        require_root && die 2 "This script must not be run as root"
 #
-# Returns:
-#   - 0 being run as root
-#   - 1 not being run as root
+# Returns: 0 if being run as root; 1 if not being run as root
 ################################################################################
 function require_root() {
   (( EUID == 0 ))
@@ -385,9 +340,7 @@ function require_root() {
 #
 # Usage: is_piped
 #
-# Returns:
-#   - 0 being piped
-#   - 1 not being piped
+# Returns: 0 if output is piped; 1 if output is not piped
 ################################################################################
 function is_piped() {
   [[ ! -t 1 ]]
@@ -400,9 +353,7 @@ function is_piped() {
 #
 # Usage: is_sourced
 #
-# Returns:
-#   - 0 being sourced
-#   - 1 not being sourced
+# Returns: 0 if being sourced; 1 if not being sourced
 #################################################################################
 function is_sourced() {
   [[ "${BASH_SOURCE[0]}" != "$0" ]]
@@ -417,10 +368,7 @@ function is_sourced() {
 #
 # Usage: is_interactive
 #
-# Returns:
-#   - 0 being interactive
-#   - 1 not being interactive
-#
+# Returns: 0 if interactive; 1 if not interactive
 #################################################################################
 function is_interactive() {
   [[ $- == *i* ]] && return 0
