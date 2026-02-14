@@ -346,6 +346,21 @@ function is_piped() {
 }
 
 
+################################################################################
+# Check if script is sourced
+#
+# Usage: is_sourced
+#
+# Returns:
+#   - 0 being sourced
+#   - 1 not being sourced
+#################################################################################
+function is_sourced() {
+  [[ "${BASH_SOURCE[0]}" != "$0" ]]
+  return
+}
+
+
 # Disable colors if script is piped
 if is_piped; then
   NO_COLOR=1
