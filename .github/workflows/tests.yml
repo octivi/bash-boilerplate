@@ -26,3 +26,13 @@ jobs:
 
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@2.0.0
+
+  skills-validate:
+    name: Validate skills
+    runs-on: ubuntu-slim
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v6
+
+      - name: Validate skill structure and frontmatter
+        run: bash ./tests/validate-skills

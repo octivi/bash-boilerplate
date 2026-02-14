@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bash Script Best Practices"
+  short_description: "Create and refactor robust Bash scripts with OBB patterns"
+  default_prompt: "Use $bash-script-best-practices to create or refactor a Bash script with strict mode, getopts, safe quoting, traps, logging, and ShellCheck-clean output."

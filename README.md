@@ -72,6 +72,26 @@ One simple task to install `octivi-bash-boilerplate`
   delay: 2
 ```
 
+## AI no-clone quick start (`skills.sh`: Codex + Claude + Gemini)
+
+Install all skills:
+
+```bash
+npx skills add octivi/bash-boilerplate
+```
+
+Install selected skills:
+
+```bash
+npx skills add octivi/bash-boilerplate --skill bash-script-best-practices
+```
+
+Copy-paste prompts:
+
+- Codex: "Use `bash-script-best-practices` and create a new Bash script with strict mode, getopts, traps, and ShellCheck-clean output."
+- Claude: "Use `bash-script-best-practices` and refactor this script while preserving CLI compatibility."
+- Gemini: "Use `bash-script-best-practices` and harden this script for safe quoting, exit codes, and error handling."
+
 ## Projects that use Octivi Bash Boilerplate
 
 - [BorgBackup Wrapper](https://github.com/octivi/borg-backup-wrapper) - a wrapper around the deduplicating archiver

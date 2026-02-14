@@ -59,6 +59,29 @@ jobs:
             curl -fsSL "https://github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/releases/download/${{ env.TAG_NAME }}/octivi-bash-boilerplate.sha256" | sha256sum -c -
             sudo install -m 0644 octivi-bash-boilerplate /usr/local/share/octivi-bash-boilerplate
             ```
+
+            ## Install AI Skill (skills.sh)
+
+            ### Pinned to this release
+
+            ```bash
+            npx --yes skills@latest add "${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/skills/bash-script-best-practices@${{ env.TAG_NAME }}" --target codex
+            npx --yes skills@latest add "${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/skills/bash-script-best-practices@${{ env.TAG_NAME }}" --target claude
+            npx --yes skills@latest add "${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/skills/bash-script-best-practices@${{ env.TAG_NAME }}" --target gemini
+            ```
+
+            ### Latest from main branch
+
+            ```bash
+            npx --yes skills@latest add "${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/skills/bash-script-best-practices@main" --target codex
+            npx --yes skills@latest add "${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/skills/bash-script-best-practices@main" --target claude
+            npx --yes skills@latest add "${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/skills/bash-script-best-practices@main" --target gemini
+            ```
+
+            ## Example prompts
+
+            - "Create a new Bash script with strict mode, getopts, and cleanup traps."
+            - "Refactor this existing Bash script and keep CLI compatibility."
           generate_release_notes: true
           fail_on_unmatched_files: true
         env:

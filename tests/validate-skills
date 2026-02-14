@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2016-2026  IMAGIN sp. z o.o.
+# SPDX-FileContributor: Marcin Engelmann <mengelmann@octivi.com>
+# SPDX-License-Identifier: MIT
+#
+# Part of Octivi Bash Boilerplate https://github.com/octivi/bash-boilerplate
+#
+# Minimalistic version of the bash boilerplate to be used in scripts.
+# Just copy and paste this code at the beginning of your bash script files.
+#
+# Specify the shell for ShellCheck since we do not use a shebang here
+# shellcheck shell=bash
+
+# Octivi Bash Boilerplate (OBB) Header
+# Part of Octivi Bash Boilerplate https://github.com/octivi/bash-boilerplate
+################################################################################
+# Unofficial Bash "Strict Mode"
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+# Define common constants regardless if they are used in the script
+__my_name="$(basename "${BASH_SOURCE[0]}")"
+readonly __my_name
+__my_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly __my_dir
+__my_path="${__my_dir}/${__my_name}"
+# shellcheck disable=SC2034
+readonly __my_path
+__my_args="$*"
+# shellcheck disable=SC2034
+readonly __my_args
+# Set IFS to just newline and tab
+IFS=$'\n\t'
+################################################################################
+
+ROOT_DIR="$(cd "${__my_dir}/.." && pwd)"
+readonly ROOT_DIR
+SKILLS_DIR="${ROOT_DIR}/skills"
+readonly SKILLS_DIR
+
+required_paths=(
+  "SKILL.md"
+  "agents/openai.yaml"
+  "references/checklist.md"
+  "references/new-script-playbook.md"
+  "references/refactor-playbook.md"
+  "references/obb-integration.md"
+  "assets/templates/full-obb-script"
+  "assets/templates/header-only-script"
+)
+
+failures=0
+
+check_script_naming_rules() {
+  local skill_dir="$1"
+  local bad_path
+
+  if [[ "${__my_name}" == *.sh ]]; then
+    printf 'ERROR: Validator script must not use a .sh extension: %s\n' "${__my_name}" >&2
+    failures=1
+  fi
+
+  while IFS= read -r bad_path; do
+    if [[ -n "${bad_path}" ]]; then
+      printf 'ERROR: Script files must not use a .sh extension: %s\n' "${bad_path}" >&2
+      failures=1
+    fi
+  done < <(find "${skill_dir}" -type f -name '*.sh' | sort)
+}
+
+check_frontmatter() {
+  local skill_dir="$1"
+  local skill_md="${skill_dir}/SKILL.md"
+  local frontmatter
+  local name_value
+  local description_value
+
+  if [[ ! -f "${skill_md}" ]]; then
+    printf 'ERROR: Missing %s\n' "${skill_md}" >&2
+    failures=1
+    return
+  fi
+
+  frontmatter="$(awk '
+    NR == 1 {
+      if ($0 != "---") {
+        exit 1
+      }
+      next
+    }
+    $0 == "---" {
+      exit 0
+    }
+    {
+      print
+    }
+  ' "${skill_md}" || true)"
+
+  if [[ -z "${frontmatter}" ]]; then
+    printf 'ERROR: Invalid or missing YAML frontmatter in %s\n' "${skill_md}" >&2
+    failures=1
+    return
+  fi
+
+  name_value="$(printf '%s\n' "${frontmatter}" | sed -n 's/^name:[[:space:]]*//p' | head -n 1 | sed 's/^"//; s/"$//')"
+  description_value="$(printf '%s\n' "${frontmatter}" | sed -n 's/^description:[[:space:]]*//p' | head -n 1 | sed 's/^"//; s/"$//')"
+
+  if [[ -z "${name_value}" ]]; then
+    printf 'ERROR: Missing frontmatter field "name" in %s\n' "${skill_md}" >&2
+    failures=1
+  fi
+
+  if [[ -z "${description_value}" ]]; then
+    printf 'ERROR: Missing frontmatter field "description" in %s\n' "${skill_md}" >&2
+    failures=1
+  fi
+
+  if [[ "${name_value}" != "$(basename "${skill_dir}")" ]]; then
+    printf 'ERROR: Skill directory "%s" does not match frontmatter name "%s"\n' "$(basename "${skill_dir}")" "${name_value}" >&2
+    failures=1
+  fi
+}
+
+main() {
+  local skill_dir
+  local required_path
+
+  if [[ ! -d "${SKILLS_DIR}" ]]; then
+    printf 'ERROR: Missing skills directory at %s\n' "${SKILLS_DIR}" >&2
+    exit 1
+  fi
+
+  for skill_dir in "${SKILLS_DIR}"/*; do
+    if [[ ! -d "${skill_dir}" ]]; then
+      continue
+    fi
+
+    for required_path in "${required_paths[@]}"; do
+      if [[ ! -f "${skill_dir}/${required_path}" ]]; then
+        printf 'ERROR: Missing required file: %s\n' "${skill_dir}/${required_path}" >&2
+        failures=1
+      fi
+    done
+
+    check_script_naming_rules "${skill_dir}"
+    check_frontmatter "${skill_dir}"
+  done
+
+  if (( failures != 0 )); then
+    exit 1
+  fi
+
+  printf 'Skill validation passed.\n'
+}
+
+main "$@"
