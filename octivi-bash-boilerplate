@@ -267,9 +267,6 @@ function die() {
   if (( $# > 0 )); then
     # Still at least one argument, use all of them as a message
     local -r message="$*"
-  fi
-
-  if [[ -v message ]]; then
     if (( ret != 0 )); then
       error "${message}"
     else
