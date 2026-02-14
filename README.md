@@ -5,7 +5,6 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org/)
 [![Semantic Versioning](https://img.shields.io/badge/SemVer-2.0.0-blue)](https://semver.org/spec/v2.0.0.html)
 
-
 > If you are writing a script that is more than 100 lines long, or that uses non-straightforward control flow logic, you
 > should rewrite it in a more structured language now. --
 > [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
@@ -18,8 +17,8 @@ faster and with fewer surprises.
 
 ## Octivi Bash Boilerplate (OBB) Header
 
-Octivi Bash Boilerplate (OBB) Header is minimalistic version of the bash boilerplate to be used in scripts.
-Just copy and paste this code at the beginning of your bash script files.
+Octivi Bash Boilerplate (OBB) Header is a minimalistic version of the Bash boilerplate for use in scripts.
+Copy and paste this code at the beginning of your Bash script files.
 
 ## Key features
 
@@ -45,7 +44,7 @@ Just copy and paste this code at the beginning of your bash script files.
 Just download
 
 ```bash
-# or https://github.com/octivi/bash-boilerplate/releases/latest/download/octivi-bash-boilerplate if you want always latest release
+# or https://github.com/octivi/bash-boilerplate/releases/latest/download/octivi-bash-boilerplate if you always want the latest release
 curl -fsSLO https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate
 curl -fsSL https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate.sha256 | sha256sum -c -
 sudo install -m 0644 octivi-bash-boilerplate /usr/local/share/octivi-bash-boilerplate
@@ -56,17 +55,17 @@ sudo install -m 0644 octivi-bash-boilerplate /usr/local/share/octivi-bash-boiler
 One simple task to install `octivi-bash-boilerplate`
 
 ```yaml
-- name: 'Install Octivi Bash Boilerplate (OBB)'
+- name: "Install Octivi Bash Boilerplate (OBB)"
   ansible.builtin.get_url:
-    # or https://github.com/octivi/bash-boilerplate/releases/latest/download/octivi-bash-boilerplate if you want always latest release
-    url: 'https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate'
-    dest: '/usr/local/share/octivi-bash-boilerplate'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
-    # or https://github.com/octivi/bash-boilerplate/releases/latest/download/octivi-bash-boilerplate.sha256 if you want always latest release
-    checksum: 'sha256:https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate.sha256'
-  register: '__bash_boilerplate_download'
+    # or https://github.com/octivi/bash-boilerplate/releases/latest/download/octivi-bash-boilerplate if you always want the latest release
+    url: "https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate"
+    dest: "/usr/local/share/octivi-bash-boilerplate"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+    # or https://github.com/octivi/bash-boilerplate/releases/latest/download/octivi-bash-boilerplate.sha256 if you always want the latest release
+    checksum: "sha256:https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate.sha256"
+  register: "__bash_boilerplate_download"
   until: __bash_boilerplate_download is succeeded
   retries: 5
   delay: 2
