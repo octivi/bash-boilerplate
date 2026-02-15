@@ -154,7 +154,7 @@ function header() {
 }
 
 ################################################################################
-# Show a rotating spinner on stdout (Bash, with GNU sleep)
+# Show a rotating spinner on stdout
 #
 # Based on https://mywiki.wooledge.org/BashFAQ/034 and vendored 1-char spinners
 # from https://github.com/sindresorhus/cli-spinners/blob/main/spinners.json
@@ -171,6 +171,7 @@ function spin() {
   local i=0
   local sp=''
   local n=0
+  local tty_fd=0
   local locale="${LC_ALL:-${LC_CTYPE:-${LANG:-}}}"
 
   if [[ ${locale^^} != *UTF-8* && ${locale^^} != *UTF8* ]]; then
@@ -188,8 +189,10 @@ function spin() {
 
   n=${#sp}
   printf ' '
-  while sleep 0.1; do
+  exec {tty_fd}</dev/tty || return 0
+  while :; do
     printf '\b%s' "${sp:i++%n:1}"
+    IFS= read -r -t 0.1 -u "${tty_fd}" || true
   done
 }
 
