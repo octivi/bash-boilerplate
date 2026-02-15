@@ -296,3 +296,8 @@ require_bash_version 4 4 || { echo "At least Bash 4.4 is required"; is_sourced &
 if is_piped; then
   NO_COLOR=1
 fi
+
+# Run main only when executed directly; do nothing when sourced.
+if ! is_sourced; then
+  main "$@"
+fi
