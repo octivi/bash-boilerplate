@@ -47,7 +47,6 @@ readonly __c_error="${__c_red}"
 readonly __c_warning="${__c_yellow}"
 readonly __c_ok="${__c_green}"
 
-
 ################################################################################
 # Print help message
 #
@@ -61,7 +60,6 @@ function usage() {
   printf "%b\n" "$(grep '^#/' "${__my_path}" | cut -c4-)" 1>&2
 }
 
-
 ################################################################################
 # Output current timestamp in ISO 8601 format (2020-02-11T08:56:00+0000) to stdout
 #
@@ -74,6 +72,21 @@ function now() {
   printf '%(%Y-%m-%dT%H:%M:%S%z)T' -1
 }
 
+################################################################################
+# Read lines from stdin and call a function for each line
+#
+# Usage: __read_stdin_lines <function_name>
+#
+# Outputs: None
+# Returns: 0 when stdin is piped and all calls succeed, 1 otherwise
+################################################################################
+function __read_stdin_lines() {
+  local func="$1" line
+  shift
+  (($# == 0)) && [[ -p /dev/stdin ]] || return 1
+  # No arguments and stdin is opened, so read message from stdin and execute the function for each line
+  while read -r line; do "${func}" "${line}"; done
+}
 
 ################################################################################
 # Output timestamp and message to stdout
@@ -84,17 +97,9 @@ function now() {
 # Outputs: timestamp and message
 ################################################################################
 function print() {
-  if (($# == 0)) && [[ -p /dev/stdin ]]; then
-    # No arguments and stdin is opened, so read message from stdin
-    while read -r line; do
-      print "${line}"
-    done
-  else
-    # Message passed as an argument
-    printf '%s %b\n' "$(now)" "$*"
-  fi
+  __read_stdin_lines print "$@" && return
+  printf '%s %b\n' "$(now)" "$*"
 }
-
 
 ################################################################################
 # Print error message to stderr
@@ -105,21 +110,9 @@ function print() {
 # Outputs: message
 ################################################################################
 function error() {
-  if (($# == 0)) && [[ -p /dev/stdin ]]; then
-    # No arguments and stdin is opened, so read message from stdin
-    while read -r line; do
-      error "${line}"
-    done
-  else
-    # Message passed as an argument
-    if [[ -z ${NO_COLOR-} || -n ${FORCE_COLOR-} ]]; then
-      print "${__c_error}ERROR: $*${__c_rst}" 1>&2
-    else
-      print "ERROR: $*" 1>&2
-    fi
-  fi
+  __read_stdin_lines error "$@" && return
+  if [[ -z ${NO_COLOR-} || -n ${FORCE_COLOR-} ]]; then print "${__c_error}ERROR: $*${__c_rst}" 1>&2; else print "ERROR: $*" 1>&2; fi
 }
-
 
 ################################################################################
 # Print warning message to stderr
@@ -130,21 +123,9 @@ function error() {
 # Outputs: message
 ################################################################################
 function warning() {
-  if (($# == 0)) && [[ -p /dev/stdin ]]; then
-    # No arguments and stdin is opened, so read message from stdin
-    while read -r line; do
-      warning "${line}"
-    done
-  else
-    # Message passed as an argument
-    if [[ -z ${NO_COLOR-} || -n ${FORCE_COLOR-} ]]; then
-      print "${__c_warning}WARN: $*${__c_rst}" 1>&2
-    else
-      print "WARN: $*" 1>&2
-    fi
-  fi
+  __read_stdin_lines warning "$@" && return
+  if [[ -z ${NO_COLOR-} || -n ${FORCE_COLOR-} ]]; then print "${__c_warning}WARN: $*${__c_rst}" 1>&2; else print "WARN: $*" 1>&2; fi
 }
-
 
 ################################################################################
 # Print OK message to stdout
@@ -155,21 +136,9 @@ function warning() {
 # Outputs: message
 ################################################################################
 function ok() {
-  if (($# == 0)) && [[ -p /dev/stdin ]]; then
-    # No arguments and stdin is opened, so read message from stdin
-    while read -r line; do
-      ok "${line}"
-    done
-  else
-    # Message passed as an argument
-    if [[ -z ${NO_COLOR-} || -n ${FORCE_COLOR-} ]]; then
-      print "${__c_ok}OK: $*${__c_rst}"
-    else
-      print "OK: $*"
-    fi
-  fi
+  __read_stdin_lines ok "$@" && return
+  if [[ -z ${NO_COLOR-} || -n ${FORCE_COLOR-} ]]; then print "${__c_ok}OK: $*${__c_rst}"; else print "OK: $*"; fi
 }
-
 
 ################################################################################
 # Print a bigger header to stdout
@@ -180,19 +149,9 @@ function ok() {
 # Outputs: header
 ################################################################################
 function header() {
-  if (($# == 0)) && [[ -p /dev/stdin ]]; then
-    # No arguments and stdin is opened, so read header from stdin
-    while read -r line; do
-      header "${line}"
-    done
-  else
-    # Message passed as an argument
-    print "##########"
-    print "# $*"
-    print "##########"
-  fi
+  __read_stdin_lines header "$@" && return
+  print "##########"; print "# $*"; print "##########"
 }
-
 
 ################################################################################
 # Show a rotating spinner on stdout (Bash, with GNU sleep)
@@ -211,36 +170,28 @@ function spin() {
   local spinner="${1:-dots}"
   local i=0
   local sp=''
-  local interval='0.13'
   local n=0
   local locale="${LC_ALL:-${LC_CTYPE:-${LANG:-}}}"
-  local spinner_entry
-  local -A spinner_data=(
-    [dots]=$'0.08\t⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏' [dots2]=$'0.08\t⣾⣽⣻⢿⡿⣟⣯⣷' [dots3]=$'0.08\t⠋⠙⠚⠞⠖⠦⠴⠲⠳⠓'
-    [dots4]=$'0.08\t⠄⠆⠇⠋⠙⠸⠰⠠⠰⠸⠙⠋⠇⠆' [dots5]=$'0.08\t⠋⠙⠚⠒⠂⠂⠒⠲⠴⠦⠖⠒⠐⠐⠒⠓⠋'
-    [dots6]=$'0.08\t⠁⠉⠙⠚⠒⠂⠂⠒⠲⠴⠤⠄⠄⠤⠴⠲⠒⠂⠂⠒⠚⠙⠉⠁' [dots7]=$'0.08\t⠈⠉⠋⠓⠒⠐⠐⠒⠖⠦⠤⠠⠠⠤⠦⠖⠒⠐⠐⠒⠓⠋⠉⠈'
-    [dots8]=$'0.08\t⠁⠁⠉⠙⠚⠒⠂⠂⠒⠲⠴⠤⠄⠄⠤⠠⠠⠤⠦⠖⠒⠐⠐⠒⠓⠋⠉⠈⠈' [dots9]=$'0.08\t⢹⢺⢼⣸⣇⡧⡗⡏'
-    [dots10]=$'0.08\t⢄⢂⢁⡁⡈⡐⡠' [dots11]=$'0.1\t⠁⠂⠄⡀⢀⠠⠐⠈' [dots13]=$'0.08\t⣼⣹⢻⠿⡟⣏⣧⣶'
-    [dots8Bit]=$'0.08\t⠀⠁⠂⠃⠄⠅⠆⠇⡀⡁⡂⡃⡄⡅⡆⡇⠈⠉⠊⠋⠌⠍⠎⠏⡈⡉⡊⡋⡌⡍⡎⡏⠐⠑⠒⠓⠔⠕⠖⠗⡐⡑⡒⡓⡔⡕⡖⡗⠘⠙⠚⠛⠜⠝⠞⠟⡘⡙⡚⡛⡜⡝⡞⡟⠠⠡⠢⠣⠤⠥⠦⠧⡠⡡⡢⡣⡤⡥⡦⡧⠨⠩⠪⠫⠬⠭⠮⠯⡨⡩⡪⡫⡬⡭⡮⡯⠰⠱⠲⠳⠴⠵⠶⠷⡰⡱⡲⡳⡴⡵⡶⡷⠸⠹⠺⠻⠼⠽⠾⠿⡸⡹⡺⡻⡼⡽⡾⡿⢀⢁⢂⢃⢄⢅⢆⢇⣀⣁⣂⣃⣄⣅⣆⣇⢈⢉⢊⢋⢌⢍⢎⢏⣈⣉⣊⣋⣌⣍⣎⣏⢐⢑⢒⢓⢔⢕⢖⢗⣐⣑⣒⣓⣔⣕⣖⣗⢘⢙⢚⢛⢜⢝⢞⢟⣘⣙⣚⣛⣜⣝⣞⣟⢠⢡⢢⢣⢤⢥⢦⢧⣠⣡⣢⣣⣤⣥⣦⣧⢨⢩⢪⢫⢬⢭⢮⢯⣨⣩⣪⣫⣬⣭⣮⣯⢰⢱⢲⢳⢴⢵⢶⢷⣰⣱⣲⣳⣴⣵⣶⣷⢸⢹⢺⢻⢼⢽⢾⢿⣸⣹⣺⣻⣼⣽⣾⣿'
-    [sand]=$'0.08\t⠁⠂⠄⡀⡈⡐⡠⣀⣁⣂⣄⣌⣔⣤⣥⣦⣮⣶⣷⣿⡿⠿⢟⠟⡛⠛⠫⢋⠋⠍⡉⠉⠑⠡⢁' [line]=$'0.13\t-\\|/'
-    [arrow]=$'0.1\t←↖↑↗→↘↓↙' [dqpb]=$'0.1\tdqpb' [layer]=$'0.15\t-=≡'
-  )
 
   if [[ ${locale^^} != *UTF-8* && ${locale^^} != *UTF8* ]]; then
     spinner='line'
   fi
 
-  spinner_entry="${spinner_data["${spinner}"]:-$'0.13\t-\\|/'}"
-  interval="${spinner_entry%%$'\t'*}"
-  sp="${spinner_entry#*$'\t'}"
+  case "${spinner}" in
+    dots) sp='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏' ;;
+    dots2) sp='⣾⣽⣻⢿⡿⣟⣯⣷' ;;
+    sand) sp='⠁⠂⠄⡀⡈⡐⡠⣀⣁⣂⣄⣌⣔⣤⣥⣦⣮⣶⣷⣿⡿⠿⢟⠟⡛⠛⠫⢋⠋⠍⡉⠉⠑⠡⢁' ;;
+    line) sp='-\|/' ;;
+    dqpb) sp='dqpb' ;;
+    *) sp='-\|/' ;;
+  esac
 
   n=${#sp}
   printf ' '
-  while sleep "${interval}"; do
+  while sleep 0.1; do
     printf '\b%s' "${sp:i++%n:1}"
   done
 }
-
 
 ################################################################################
 # Print an optional message and exit with either the given status or that of the most recent command
@@ -256,24 +207,13 @@ function die() {
   # Get the exit code of the most recent command.
   local ret=$?
 
-  if (( $# > 0 )) && [[ $1 != *[^0-9]* ]]; then
-    # At least one argument and it is a number, use as an exit code
-    ret="$1"
-    shift
-  fi
+  # At least one argument and it is a number, use as an exit code
+  if (( $# > 0 )) && [[ $1 =~ ^[0-9]+$ ]]; then ret="$1"; shift; fi
 
-  if (( $# > 0 )); then
-    # Still at least one argument, use all of them as a message
-    local -r message="$*"
-    if (( ret != 0 )); then
-      error "${message}"
-    else
-      print "${message}"
-    fi
-  fi
+  # Still at least one argument, use all of them as a message
+  if (( $# > 0 )); then if (( ret != 0 )); then error "$*"; else print "$*"; fi; fi
   exit "${ret}"
 }
-
 
 ################################################################################
 # Check if this instance of bash version is at least X.Y
@@ -285,9 +225,7 @@ function die() {
 ################################################################################
 function require_bash_version() {
   (( BASH_VERSINFO[0] > $1 || (BASH_VERSINFO[0] == $1 && BASH_VERSINFO[1] >= $2) ))
-  return
 }
-
 
 ################################################################################
 # Check if required command is available
@@ -299,9 +237,7 @@ function require_bash_version() {
 ################################################################################
 function require_command() {
   type -P "$1" > /dev/null
-  return
 }
-
 
 ################################################################################
 # Check if script is being run by root user
@@ -313,9 +249,7 @@ function require_command() {
 ################################################################################
 function require_root() {
   (( EUID == 0 ))
-  return
 }
-
 
 ################################################################################
 # Check if script is piped
@@ -326,9 +260,7 @@ function require_root() {
 ################################################################################
 function is_piped() {
   [[ ! -t 1 ]]
-  return
 }
-
 
 ################################################################################
 # Check if script is sourced
@@ -339,9 +271,7 @@ function is_piped() {
 #################################################################################
 function is_sourced() {
   [[ "${BASH_SOURCE[0]}" != "$0" ]]
-  return
 }
-
 
 ################################################################################
 # Check if script is interactive
@@ -353,11 +283,8 @@ function is_sourced() {
 # Returns: 0 if interactive; 1 if not interactive
 #################################################################################
 function is_interactive() {
-  [[ $- == *i* ]] && return 0
-  [[ -t 0 ]]
-  return
+  [[ $- == *i* || -t 0 ]]
 }
-
 
 # Minimum supported Bash version for Octivi Bash Boilerplate is Bash 4.4
 require_bash_version 4 4 || { echo "At least Bash 4.4 is required"; is_sourced && return 2 || exit 2; }
