@@ -189,7 +189,7 @@ function spin() {
 
   n=${#sp}
   printf ' '
-  exec {tty_fd}</dev/tty || return 0
+  { exec {tty_fd}</dev/tty; } 2>/dev/null || return 0
   while :; do
     printf '\b%s' "${sp:i++%n:1}"
     IFS= read -r -t 0.1 -u "${tty_fd}" || true
