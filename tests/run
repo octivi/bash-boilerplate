@@ -1,0 +1,385 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2026  IMAGIN sp. z o.o.
+# SPDX-FileContributor: Marcin Engelmann <mengelmann@octivi.com>
+# SPDX-License-Identifier: MIT
+#
+# Part of Octivi Bash Boilerplate https://github.com/octivi/bash-boilerplate
+
+# >>> OBB:BEGIN variant=header
+################################################################################
+# Octivi Bash Boilerplate (OBB) Header
+# Part of Octivi Bash Boilerplate https://github.com/octivi/bash-boilerplate
+################################################################################
+# Unofficial Bash "Strict Mode"
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+# Define common constants regardless if they are used in the script
+__my_name="$(basename "${BASH_SOURCE[0]}")"
+readonly __my_name
+__my_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly __my_dir
+__my_path="${__my_dir}/${__my_name}"
+# shellcheck disable=SC2034
+readonly __my_path
+__my_args="$*"
+# shellcheck disable=SC2034
+readonly __my_args
+# Set IFS to just newline and tab
+IFS=$'\n\t'
+################################################################################
+# <<< OBB:END
+
+# shellcheck source=/dev/null
+source "${__my_dir}/../octivi-bash-boilerplate"
+
+readonly UPDATE_OBB="${__my_dir}/../update-octivi-bash-boilerplate"
+readonly OBB_FULL_TEMPLATE="${__my_dir}/../octivi-bash-boilerplate"
+readonly OBB_HEADER_TEMPLATE="${__my_dir}/../octivi-bash-boilerplate-header"
+
+TMP_DIRS=()
+CAPTURED_OUTPUT=""
+CAPTURED_STATUS=0
+
+cleanup() {
+  local dir=''
+  for dir in "${TMP_DIRS[@]}"; do
+    [[ -n ${dir} ]] && rm -rf "${dir}"
+  done
+}
+
+trap cleanup EXIT
+
+fail() {
+  error "FAIL: $*"
+  exit 1
+}
+
+assert_equal() {
+  local actual="$1"
+  local expected="$2"
+  if [[ ${actual} != "${expected}" ]]; then
+    print "Expected: ${expected}"
+    print "Actual:   ${actual}"
+    fail "assert_equal"
+  fi
+}
+
+assert_str_contains() {
+  local haystack="$1"
+  local expected="$2"
+  if [[ ${haystack} != *"${expected}"* ]]; then
+    print "Expected to find: ${expected}"
+    print "In output:"
+    print "${haystack}"
+    fail "assert_str_contains"
+  fi
+}
+
+assert_str_not_contains() {
+  local haystack="$1"
+  local unexpected="$2"
+  if [[ ${haystack} == *"${unexpected}"* ]]; then
+    print "Expected NOT to find: ${unexpected}"
+    print "In output:"
+    print "${haystack}"
+    fail "assert_str_not_contains"
+  fi
+}
+
+assert_file_contains() {
+  local file="$1"
+  local expected="$2"
+  if ! grep -Fq -- "${expected}" "${file}"; then
+    print "Expected to find: ${expected}"
+    print "In file: ${file}"
+    print "---"
+    sed -n '1,220p' "${file}" || true
+    print "---"
+    fail "assert_file_contains"
+  fi
+}
+
+assert_file_not_contains() {
+  local file="$1"
+  local unexpected="$2"
+  if grep -Fq -- "${unexpected}" "${file}"; then
+    print "Expected NOT to find: ${unexpected}"
+    print "In file: ${file}"
+    print "---"
+    sed -n '1,220p' "${file}" || true
+    print "---"
+    fail "assert_file_not_contains"
+  fi
+}
+
+run_and_capture() {
+  local out=''
+  local status=0
+  set +e
+  out="$("$@" 2>&1)"
+  status=$?
+  set -e
+  CAPTURED_OUTPUT="${out}"
+  CAPTURED_STATUS=${status}
+}
+
+make_tmp_dir() {
+  local dir=''
+  dir="$(mktemp -d)"
+  TMP_DIRS+=("${dir}")
+  printf "%s\n" "${dir}"
+}
+
+run_test() {
+  local name="$1"
+  shift
+  print "==> ${name}"
+  "$@"
+}
+
+read_template_line() {
+  local file="$1"
+  local pattern="$2"
+  local line=''
+  line="$(grep -m1 -E "${pattern}" "${file}" || true)"
+  [[ -n ${line} ]] || fail "read_template_line: pattern '${pattern}' not found in ${file}"
+  printf "%s\n" "${line}"
+}
+
+test_help_shows_variant_values() {
+  run_and_capture "${UPDATE_OBB}" --help
+  assert_equal "${CAPTURED_STATUS}" "0"
+  assert_str_contains "${CAPTURED_OUTPUT}" "--variant full|header"
+  assert_str_not_contains "${CAPTURED_OUTPUT}" "--variant auto|full|header"
+}
+
+test_updates_single_header_block() {
+  local tmp=''
+  local file=''
+  local header_signature=''
+  tmp="$(make_tmp_dir)"
+  file="${tmp}/single-header.sh"
+  header_signature="$(read_template_line "${OBB_HEADER_TEMPLATE}" '^# Octivi Bash Boilerplate \(OBB\) Header$')"
+
+  cat <<'EOF' > "${file}"
+#!/usr/bin/env bash
+# >>> OBB:BEGIN variant=header source=local version=old
+OLD
+# <<< OBB:END
+EOF
+
+  run_and_capture "${UPDATE_OBB}" "${file}"
+  assert_equal "${CAPTURED_STATUS}" "0"
+  assert_str_contains "${CAPTURED_OUTPUT}" "UPDATED ${file}"
+  assert_file_contains "${file}" "# >>> OBB:BEGIN variant=header source=local version=local"
+  assert_file_contains "${file}" "${header_signature}"
+  assert_file_not_contains "${file}" "SPDX-License-Identifier:"
+}
+
+test_updates_multiple_blocks_with_mixed_variants() {
+  local tmp=''
+  local file=''
+  local full_signature=''
+  tmp="$(make_tmp_dir)"
+  file="${tmp}/mixed-variants.sh"
+  full_signature="$(read_template_line "${OBB_FULL_TEMPLATE}" '^if ! is_sourced; then$')"
+
+  cat <<'EOF' > "${file}"
+line-a
+# >>> OBB:BEGIN variant=header source=local version=old
+OLD_HEADER
+# <<< OBB:END
+line-b
+# >>> OBB:BEGIN variant=full source=local version=old
+OLD_FULL
+# <<< OBB:END
+line-c
+EOF
+
+  run_and_capture "${UPDATE_OBB}" "${file}"
+  assert_equal "${CAPTURED_STATUS}" "0"
+  assert_file_contains "${file}" "# >>> OBB:BEGIN variant=header source=local version=local"
+  assert_file_contains "${file}" "# >>> OBB:BEGIN variant=full source=local version=local"
+  assert_file_contains "${file}" "${full_signature}"
+}
+
+test_cli_variant_overrides_marker_variant() {
+  local tmp=''
+  local file=''
+  tmp="$(make_tmp_dir)"
+  file="${tmp}/override-variant.sh"
+
+  cat <<'EOF' > "${file}"
+# >>> OBB:BEGIN variant=header source=local version=old
+OLD
+# <<< OBB:END
+EOF
+
+  run_and_capture "${UPDATE_OBB}" --variant full "${file}"
+  assert_equal "${CAPTURED_STATUS}" "0"
+  assert_file_contains "${file}" "# >>> OBB:BEGIN variant=full source=local version=local"
+  assert_file_not_contains "${file}" "# >>> OBB:BEGIN variant=header source=local version=local"
+}
+
+test_missing_variant_without_override_fails() {
+  local tmp=''
+  local file=''
+  tmp="$(make_tmp_dir)"
+  file="${tmp}/missing-variant.sh"
+
+  cat <<'EOF' > "${file}"
+# >>> OBB:BEGIN source=local version=old
+OLD
+# <<< OBB:END
+EOF
+
+  run_and_capture "${UPDATE_OBB}" "${file}"
+  assert_equal "${CAPTURED_STATUS}" "1"
+  assert_str_contains "${CAPTURED_OUTPUT}" "missing variant for marked OBB block #1"
+}
+
+test_file_without_markers_is_skipped() {
+  local tmp=''
+  local file=''
+  tmp="$(make_tmp_dir)"
+  file="${tmp}/no-markers.sh"
+
+  cat <<'EOF' > "${file}"
+#!/usr/bin/env bash
+echo "no markers here"
+EOF
+
+  run_and_capture "${UPDATE_OBB}" "${file}"
+  assert_equal "${CAPTURED_STATUS}" "0"
+  assert_str_contains "${CAPTURED_OUTPUT}" "SKIPPED ${file} (no marked OBB block found)"
+  assert_str_contains "${CAPTURED_OUTPUT}" "SUMMARY total=1 updated=0 skipped=1 failed=0"
+}
+
+test_orphan_end_marker_fails() {
+  local tmp=''
+  local file=''
+  tmp="$(make_tmp_dir)"
+  file="${tmp}/orphan-end.sh"
+
+  cat <<'EOF' > "${file}"
+# <<< OBB:END
+EOF
+
+  run_and_capture "${UPDATE_OBB}" "${file}"
+  assert_equal "${CAPTURED_STATUS}" "1"
+  assert_str_contains "${CAPTURED_OUTPUT}" "OBB END marker without matching BEGIN marker"
+}
+
+test_missing_end_marker_fails() {
+  local tmp=''
+  local file=''
+  tmp="$(make_tmp_dir)"
+  file="${tmp}/missing-end.sh"
+
+  cat <<'EOF' > "${file}"
+# >>> OBB:BEGIN variant=full source=local version=old
+NO_END
+EOF
+
+  run_and_capture "${UPDATE_OBB}" "${file}"
+  assert_equal "${CAPTURED_STATUS}" "1"
+  assert_str_contains "${CAPTURED_OUTPUT}" "OBB BEGIN marker without matching END marker"
+}
+
+test_nested_begin_marker_fails() {
+  local tmp=''
+  local file=''
+  tmp="$(make_tmp_dir)"
+  file="${tmp}/nested-begin.sh"
+
+  cat <<'EOF' > "${file}"
+# >>> OBB:BEGIN variant=full source=local version=old
+# >>> OBB:BEGIN variant=header source=local version=old
+# <<< OBB:END
+# <<< OBB:END
+EOF
+
+  run_and_capture "${UPDATE_OBB}" "${file}"
+  assert_equal "${CAPTURED_STATUS}" "1"
+  assert_str_contains "${CAPTURED_OUTPUT}" "nested OBB BEGIN marker is not supported"
+}
+
+test_release_assets_from_local_file_url() {
+  local tmp=''
+  local release_root=''
+  local release_tag='v9.9.9'
+  local file=''
+  tmp="$(make_tmp_dir)"
+  release_root="${tmp}/release"
+  mkdir -p "${release_root}/${release_tag}"
+
+  cp "${OBB_FULL_TEMPLATE}" "${release_root}/${release_tag}/octivi-bash-boilerplate"
+  cp "${OBB_HEADER_TEMPLATE}" "${release_root}/${release_tag}/octivi-bash-boilerplate-header"
+  (
+    cd "${release_root}/${release_tag}"
+    sha256sum octivi-bash-boilerplate > octivi-bash-boilerplate.sha256
+    sha256sum octivi-bash-boilerplate-header > octivi-bash-boilerplate-header.sha256
+  )
+
+  file="${tmp}/use-release.sh"
+  cat <<'EOF' > "${file}"
+# >>> OBB:BEGIN variant=header source=local version=old
+OLD
+# <<< OBB:END
+EOF
+
+  run_and_capture env OBB_RELEASE_BASE_URL="file://${release_root}" "${UPDATE_OBB}" -u 9.9.9 "${file}"
+  assert_equal "${CAPTURED_STATUS}" "0"
+  assert_file_contains "${file}" "# >>> OBB:BEGIN variant=header source=github version=v9.9.9"
+}
+
+test_unreadable_target_file_fails() {
+  local tmp=''
+  local file=''
+  tmp="$(make_tmp_dir)"
+  file="${tmp}/unreadable.sh"
+
+  # Root may bypass DAC file permissions, so this check would not be reliable.
+  if require_root; then
+    warning "SKIPPED unreadable_target_file_fails (running as root)"
+    return
+  fi
+
+  cat <<'EOF' > "${file}"
+# >>> OBB:BEGIN variant=header source=local version=old
+OLD
+# <<< OBB:END
+EOF
+
+  chmod 000 "${file}"
+  run_and_capture "${UPDATE_OBB}" "${file}"
+  chmod 600 "${file}"
+
+  assert_equal "${CAPTURED_STATUS}" "1"
+  assert_str_contains "${CAPTURED_OUTPUT}" "Cannot read file: ${file}"
+}
+
+main() {
+  require_command grep || die 2 "Cannot find grep"
+  require_command mktemp || die 2 "Cannot find mktemp"
+  require_command sha256sum || die 2 "Cannot find sha256sum"
+  [[ -x "${UPDATE_OBB}" ]] || die 2 "Cannot execute ${UPDATE_OBB}"
+  [[ -r "${OBB_FULL_TEMPLATE}" ]] || die 2 "Cannot read ${OBB_FULL_TEMPLATE}"
+  [[ -r "${OBB_HEADER_TEMPLATE}" ]] || die 2 "Cannot read ${OBB_HEADER_TEMPLATE}"
+
+  run_test "help_shows_variant_values" test_help_shows_variant_values
+  run_test "updates_single_header_block" test_updates_single_header_block
+  run_test "updates_multiple_blocks_with_mixed_variants" test_updates_multiple_blocks_with_mixed_variants
+  run_test "cli_variant_overrides_marker_variant" test_cli_variant_overrides_marker_variant
+  run_test "missing_variant_without_override_fails" test_missing_variant_without_override_fails
+  run_test "file_without_markers_is_skipped" test_file_without_markers_is_skipped
+  run_test "orphan_end_marker_fails" test_orphan_end_marker_fails
+  run_test "missing_end_marker_fails" test_missing_end_marker_fails
+  run_test "nested_begin_marker_fails" test_nested_begin_marker_fails
+  run_test "release_assets_from_local_file_url" test_release_assets_from_local_file_url
+  run_test "unreadable_target_file_fails" test_unreadable_target_file_fails
+
+  ok "All tests passed"
+}
+
+main "$@"

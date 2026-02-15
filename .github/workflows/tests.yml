@@ -26,3 +26,6 @@ jobs:
 
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@2.0.0
+
+      - name: Run tests
+        run: ./tests/run

@@ -1,3 +1,4 @@
+# OBB:STRIP-BEGIN
 # SPDX-FileCopyrightText: 2016-2026  IMAGIN sp. z o.o.
 # SPDX-FileContributor: Marcin Engelmann <mengelmann@octivi.com>
 # SPDX-License-Identifier: MIT
@@ -9,7 +10,8 @@
 #
 # Specify the shell for ShellCheck since we do not use a shebang here
 # shellcheck shell=bash
-
+# OBB:STRIP-END
+################################################################################
 # Octivi Bash Boilerplate (OBB) Header
 # Part of Octivi Bash Boilerplate https://github.com/octivi/bash-boilerplate
 ################################################################################

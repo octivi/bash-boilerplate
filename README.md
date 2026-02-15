@@ -71,6 +71,32 @@ One simple task to install `octivi-bash-boilerplate`
   delay: 2
 ```
 
+## Update inlined OBB blocks
+
+Use `update-octivi-bash-boilerplate` to update scripts where OBB was copy-pasted (not sourced).
+
+```bash
+./update-octivi-bash-boilerplate ./script-a ./script-b
+./update-octivi-bash-boilerplate -u 1.1.1 ./script-a
+./update-octivi-bash-boilerplate --variant header ./script-a ./script-b
+```
+
+`--variant` accepts `full` or `header`. Without `--variant`, each marked block must define
+`variant=full|header` in its `# >>> OBB:BEGIN ...` marker.
+
+When `-u/--use` is set, the script downloads release assets and verifies their `.sha256` checksums before updating any
+target files.
+
+If a target file has no OBB markers, it is skipped with a warning.
+
+The updater writes explicit markers around embedded blocks:
+
+```bash
+# >>> OBB:BEGIN variant=full source=github version=v1.1.1
+...
+# <<< OBB:END
+```
+
 ## Projects that use Octivi Bash Boilerplate
 
 - [BorgBackup Wrapper](https://github.com/octivi/borg-backup-wrapper) - a wrapper around the deduplicating archiver
