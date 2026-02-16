@@ -45,9 +45,11 @@ Just download
 
 ```bash
 # or https://github.com/octivi/bash-boilerplate/releases/latest/download/octivi-bash-boilerplate if you always want the latest release
-curl -fsSLO https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate
-curl -fsSL https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate.sha256 | sha256sum -c -
-sudo install -m 0644 octivi-bash-boilerplate /usr/local/share/octivi-bash-boilerplate
+curl -fsSLO https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate \
+  && curl -fsSL https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate.sha256 \
+  | sha256sum -c - \
+  && sudo install -m 0644 octivi-bash-boilerplate /usr/local/share/octivi-bash-boilerplate \
+  || { echo "Checksum verification failed; aborting installation." >&2; exit 1; }
 ```
 
 ### Ansible
