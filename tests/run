@@ -32,7 +32,7 @@ IFS=$'\n\t'
 # shellcheck source=/dev/null
 source "${__my_dir}/../octivi-bash-boilerplate"
 
-readonly UPDATE_OBB="${__my_dir}/../update-octivi-bash-boilerplate"
+readonly UPDATE_OBB="${__my_dir}/../octivi-bash-boilerplate-update"
 readonly OBB_FULL_TEMPLATE="${__my_dir}/../octivi-bash-boilerplate"
 readonly OBB_HEADER_TEMPLATE="${__my_dir}/../octivi-bash-boilerplate-header"
 

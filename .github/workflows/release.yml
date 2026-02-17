@@ -41,6 +41,7 @@ jobs:
         run: |
           sha256sum octivi-bash-boilerplate > octivi-bash-boilerplate.sha256
           sha256sum octivi-bash-boilerplate-header > octivi-bash-boilerplate-header.sha256
+          sha256sum octivi-bash-boilerplate-update > octivi-bash-boilerplate-update.sha256
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
@@ -51,13 +52,25 @@ jobs:
             ./octivi-bash-boilerplate.sha256
             ./octivi-bash-boilerplate-header
             ./octivi-bash-boilerplate-header.sha256
+            ./octivi-bash-boilerplate-update
+            ./octivi-bash-boilerplate-update.sha256
           body: |
             ## Install
 
             ```bash
-            curl -fsSLO "https://github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/releases/download/${{ env.TAG_NAME }}/octivi-bash-boilerplate"
-            curl -fsSL "https://github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/releases/download/${{ env.TAG_NAME }}/octivi-bash-boilerplate.sha256" | sha256sum -c -
-            sudo install -m 0644 octivi-bash-boilerplate /usr/local/share/octivi-bash-boilerplate
+            curl -fsSLO "https://github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/releases/download/${{ env.TAG_NAME }}/octivi-bash-boilerplate" \
+              && curl -fsSLO "https://github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/releases/download/${{ env.TAG_NAME }}/octivi-bash-boilerplate-header" \
+              && curl -fsSLO "https://github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/releases/download/${{ env.TAG_NAME }}/octivi-bash-boilerplate-update" \
+              && curl -fsSL "https://github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/releases/download/${{ env.TAG_NAME }}/octivi-bash-boilerplate.sha256" \
+              | sha256sum -c - \
+              && curl -fsSL "https://github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/releases/download/${{ env.TAG_NAME }}/octivi-bash-boilerplate-header.sha256" \
+              | sha256sum -c - \
+              && curl -fsSL "https://github.com/${{ env.ORG_NAME }}/${{ env.REPO_NAME }}/releases/download/${{ env.TAG_NAME }}/octivi-bash-boilerplate-update.sha256" \
+              | sha256sum -c - \
+              && sudo install -m 0644 octivi-bash-boilerplate /usr/local/share/octivi-bash-boilerplate \
+              && sudo install -m 0644 octivi-bash-boilerplate-header /usr/local/share/octivi-bash-boilerplate-header \
+              && sudo install -m 0755 octivi-bash-boilerplate-update /usr/local/share/octivi-bash-boilerplate-update \
+              || { echo "Checksum verification failed; aborting installation." >&2; exit 1; }
             ```
           generate_release_notes: true
           fail_on_unmatched_files: true

@@ -5,7 +5,7 @@
 #
 # Part of Octivi Bash Boilerplate https://github.com/octivi/bash-boilerplate
 #
-#/ Usage: update-octivi-bash-boilerplate [OPTIONS] <file> [file...]
+#/ Usage: octivi-bash-boilerplate-update [OPTIONS] <file> [file...]
 #/
 #/ Update inlined Octivi Bash Boilerplate blocks in one or more files.
 #/

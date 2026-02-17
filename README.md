@@ -41,46 +41,117 @@ Copy and paste this code at the beginning of your Bash script files.
 
 ### Manual
 
-Just download
+Download, verify checksums, and install all OBB files together:
 
 ```bash
-# or https://github.com/octivi/bash-boilerplate/releases/latest/download/octivi-bash-boilerplate if you always want the latest release
+# or use releases/latest/download/... URLs if you always want the latest release
 curl -fsSLO https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate \
+  && curl -fsSLO https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate-header \
+  && curl -fsSLO https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate-update \
   && curl -fsSL https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate.sha256 \
   | sha256sum -c - \
+  && curl -fsSL https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate-header.sha256 \
+  | sha256sum -c - \
+  && curl -fsSL https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate-update.sha256 \
+  | sha256sum -c - \
   && sudo install -m 0644 octivi-bash-boilerplate /usr/local/share/octivi-bash-boilerplate \
+  && sudo install -m 0644 octivi-bash-boilerplate-header /usr/local/share/octivi-bash-boilerplate-header \
+  && sudo install -m 0755 octivi-bash-boilerplate-update /usr/local/share/octivi-bash-boilerplate-update \
   || { echo "Checksum verification failed; aborting installation." >&2; exit 1; }
 ```
 
 ### Ansible
 
-One simple task to install `octivi-bash-boilerplate`
+Install all OBB files with checksum verification:
 
 ```yaml
-- name: "Install Octivi Bash Boilerplate (OBB)"
+- name: "Install Octivi Bash Boilerplate files"
   ansible.builtin.get_url:
-    # or https://github.com/octivi/bash-boilerplate/releases/latest/download/octivi-bash-boilerplate if you always want the latest release
-    url: "https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate"
-    dest: "/usr/local/share/octivi-bash-boilerplate"
+    # or use releases/latest/download/... URLs if you always want the latest release
+    url: "https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/{{ item.name }}"
+    dest: "/usr/local/share/{{ item.name }}"
     owner: "root"
     group: "root"
-    mode: "0644"
-    # or https://github.com/octivi/bash-boilerplate/releases/latest/download/octivi-bash-boilerplate.sha256 if you always want the latest release
-    checksum: "sha256:https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate.sha256"
-  register: "__bash_boilerplate_download"
-  until: __bash_boilerplate_download is succeeded
+    mode: "{{ item.mode }}"
+    checksum: "sha256:https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/{{ item.name }}.sha256"
+  loop:
+    - { name: "octivi-bash-boilerplate", mode: "0644" }
+    - { name: "octivi-bash-boilerplate-header", mode: "0644" }
+    - { name: "octivi-bash-boilerplate-update", mode: "0755" }
+  register: "__obb_download"
+  until: __obb_download is succeeded
   retries: 5
   delay: 2
 ```
 
-## Update inlined OBB blocks
+## Quick start: use OBB in scripts (with markers)
 
-Use `update-octivi-bash-boilerplate` to update scripts where OBB was copy-pasted (not sourced).
+The easiest workflow is to keep OBB in a marked block and let
+`octivi-bash-boilerplate-update` inject/update the content for you.
+
+### Header variant (minimal)
+
+Use this when you only need strict mode and base constants.
 
 ```bash
-./update-octivi-bash-boilerplate ./script-a ./script-b
-./update-octivi-bash-boilerplate -u 1.1.1 ./script-a
-./update-octivi-bash-boilerplate --variant header ./script-a ./script-b
+#!/usr/bin/env bash
+
+# >>> OBB:BEGIN variant=header
+# <<< OBB:END
+
+main() {
+  echo "Hello from header mode"
+}
+
+main "$@"
+```
+
+Then update the marked block:
+
+```bash
+/usr/local/share/octivi-bash-boilerplate-update ./your-script
+```
+
+### Full variant (helpers + logging + checks)
+
+Use this when you want OBB helper functions like `print`, `error`, `die`, `require_command`, etc.
+
+Important: place the full OBB marker block at the end of the script and keep your own logic above it.
+
+```bash
+#!/usr/bin/env bash
+#/ Usage: your-script [OPTIONS]
+#/ Example:
+#/   your-script --help
+
+main() {
+  print "Hello from full mode"
+}
+
+# >>> OBB:BEGIN variant=full
+# <<< OBB:END
+```
+
+Then update the marked block:
+
+```bash
+/usr/local/share/octivi-bash-boilerplate-update ./your-script
+```
+
+To pin the inserted block to a specific release:
+
+```bash
+/usr/local/share/octivi-bash-boilerplate-update -u 1.1.1 ./your-script
+```
+
+## Update inlined OBB blocks
+
+Use `octivi-bash-boilerplate-update` to update scripts where OBB was copy-pasted (not sourced).
+
+```bash
+/usr/local/share/octivi-bash-boilerplate-update ./script-a ./script-b
+/usr/local/share/octivi-bash-boilerplate-update -u 1.1.1 ./script-a
+/usr/local/share/octivi-bash-boilerplate-update --variant header ./script-a ./script-b
 ```
 
 `--variant` accepts `full` or `header`. Without `--variant`, each marked block must define
