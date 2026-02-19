@@ -44,6 +44,7 @@ jobs:
           ## Install
 
           ```bash
+          # or use releases/latest/download/... URLs if you always want the latest release
           curl -fsSLO "https://github.com/${{ github.event.repository.owner.login }}/${{ github.event.repository.name }}/releases/download/${{ github.ref_name }}/octivi-bash-boilerplate" \
             && curl -fsSLO "https://github.com/${{ github.event.repository.owner.login }}/${{ github.event.repository.name }}/releases/download/${{ github.ref_name }}/octivi-bash-boilerplate-header" \
             && curl -fsSLO "https://github.com/${{ github.event.repository.owner.login }}/${{ github.event.repository.name }}/releases/download/${{ github.ref_name }}/octivi-bash-boilerplate-update" \

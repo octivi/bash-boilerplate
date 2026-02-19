@@ -45,14 +45,14 @@ Download, verify checksums, and install all OBB files together:
 
 ```bash
 # or use releases/latest/download/... URLs if you always want the latest release
-curl -fsSLO https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate \
-  && curl -fsSLO https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate-header \
-  && curl -fsSLO https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate-update \
-  && curl -fsSL https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate.sha256 \
+curl -fsSLO https://github.com/octivi/bash-boilerplate/releases/download/v1.1.0/octivi-bash-boilerplate \
+  && curl -fsSLO https://github.com/octivi/bash-boilerplate/releases/download/v1.1.0/octivi-bash-boilerplate-header \
+  && curl -fsSLO https://github.com/octivi/bash-boilerplate/releases/download/v1.1.0/octivi-bash-boilerplate-update \
+  && curl -fsSL https://github.com/octivi/bash-boilerplate/releases/download/v1.1.0/octivi-bash-boilerplate.sha256 \
   | sha256sum -c - \
-  && curl -fsSL https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate-header.sha256 \
+  && curl -fsSL https://github.com/octivi/bash-boilerplate/releases/download/v1.1.0/octivi-bash-boilerplate-header.sha256 \
   | sha256sum -c - \
-  && curl -fsSL https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/octivi-bash-boilerplate-update.sha256 \
+  && curl -fsSL https://github.com/octivi/bash-boilerplate/releases/download/v1.1.0/octivi-bash-boilerplate-update.sha256 \
   | sha256sum -c - \
   && sudo install -m 0644 octivi-bash-boilerplate /usr/local/share/octivi-bash-boilerplate \
   && sudo install -m 0644 octivi-bash-boilerplate-header /usr/local/share/octivi-bash-boilerplate-header \
@@ -68,12 +68,12 @@ Install all OBB files with checksum verification:
 - name: "Install Octivi Bash Boilerplate files"
   ansible.builtin.get_url:
     # or use releases/latest/download/... URLs if you always want the latest release
-    url: "https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/{{ item.name }}"
+    url: "https://github.com/octivi/bash-boilerplate/releases/download/v1.1.0/{{ item.name }}"
     dest: "/usr/local/share/{{ item.name }}"
     owner: "root"
     group: "root"
     mode: "{{ item.mode }}"
-    checksum: "sha256:https://github.com/octivi/bash-boilerplate/releases/download/v1.0.0/{{ item.name }}.sha256"
+    checksum: "sha256:https://github.com/octivi/bash-boilerplate/releases/download/v1.1.0/{{ item.name }}.sha256"
   loop:
     - { name: "octivi-bash-boilerplate", mode: "0644" }
     - { name: "octivi-bash-boilerplate-header", mode: "0644" }
