@@ -19,7 +19,7 @@
 #/   OBB_REPO                  GitHub repo for release assets (default: octivi/bash-boilerplate)
 #/   OBB_RELEASE_BASE_URL      Override release base URL
 
-# <<< OBB:BEGIN variant=header
+# >>> OBB:BEGIN variant=header
 # Octivi Bash Boilerplate (OBB) Header
 # Part of Octivi Bash Boilerplate https://github.com/octivi/bash-boilerplate
 ################################################################################
