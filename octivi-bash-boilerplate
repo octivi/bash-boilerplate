@@ -77,7 +77,6 @@ function now() {
 #
 # Usage: __read_stdin_lines <function_name>
 #
-# Outputs: None
 # Returns: 0 when stdin is piped and all calls succeed, 1 otherwise
 ################################################################################
 function __read_stdin_lines() {
