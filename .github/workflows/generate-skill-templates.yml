@@ -1,0 +1,56 @@
+---
+# SPDX-FileCopyrightText: 2026  IMAGIN sp. z o.o.
+# SPDX-FileContributor: Marcin Engelmann <mengelmann@octivi.com>
+# SPDX-License-Identifier: MIT
+#
+# This file is part of the configuration created by Octivi's DevOps team.
+# Details at https://octivi.com/devops
+name: Generate Skill Templates
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - octivi-bash-boilerplate
+      - octivi-bash-boilerplate-header
+      - octivi-bash-boilerplate-update
+    tags-ignore:
+      - '**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: generate-skill-templates-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generate-skill-templates:
+    name: Generate Skill Templates
+    runs-on: ubuntu-slim
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Generate templates
+        run: ./scripts/generate-skill-templates
+
+      - name: Validate generated templates
+        run: ./tests/validate-skills
+
+      - name: Commit updated templates
+        run: |
+          if git diff --quiet -- skills/octivi-bash-boilerplate/assets/templates; then
+            echo "No template updates to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add skills/octivi-bash-boilerplate/assets/templates
+          git commit -m "chore: regenerate skill templates"
+          git push origin "HEAD:${{ github.ref_name }}"

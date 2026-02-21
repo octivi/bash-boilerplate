@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2026  IMAGIN sp. z o.o.
+# SPDX-FileContributor: Marcin Engelmann <mengelmann@octivi.com>
+# SPDX-License-Identifier: MIT
+#
+# Generate ready-to-use skill templates from root OBB sources.
+
+# >>> OBB:BEGIN variant=header
+# Octivi Bash Boilerplate (OBB) Header
+# Part of Octivi Bash Boilerplate https://github.com/octivi/bash-boilerplate
+################################################################################
+# Unofficial Bash "Strict Mode"
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+# Define common constants regardless if they are used in the script
+__my_name="$(basename "${BASH_SOURCE[0]}")"
+readonly __my_name
+__my_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly __my_dir
+__my_path="${__my_dir}/${__my_name}"
+# shellcheck disable=SC2034
+readonly __my_path
+__my_args="$*"
+# shellcheck disable=SC2034
+readonly __my_args
+# Set IFS to just newline and tab
+IFS=$'\n\t'
+################################################################################
+# <<< OBB:END
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || {
+  printf 'ERROR: Cannot enter repository root\n' >&2
+  exit 2
+}
+
+[[ -x "./octivi-bash-boilerplate-update" ]] || {
+  printf 'ERROR: Cannot execute ./octivi-bash-boilerplate-update\n' >&2
+  exit 2
+}
+
+[[ -r "./skills/octivi-bash-boilerplate/assets/templates/header-only-script" \
+  && -w "./skills/octivi-bash-boilerplate/assets/templates/header-only-script" ]] || {
+  printf 'ERROR: Cannot read/write template ./skills/octivi-bash-boilerplate/assets/templates/header-only-script\n' >&2
+  exit 2
+}
+[[ -r "./skills/octivi-bash-boilerplate/assets/templates/full-obb-script-source" \
+  && -w "./skills/octivi-bash-boilerplate/assets/templates/full-obb-script-source" ]] || {
+  printf 'ERROR: Cannot read/write template ./skills/octivi-bash-boilerplate/assets/templates/full-obb-script-source\n' >&2
+  exit 2
+}
+[[ -r "./skills/octivi-bash-boilerplate/assets/templates/full-obb-script-embedded" \
+  && -w "./skills/octivi-bash-boilerplate/assets/templates/full-obb-script-embedded" ]] || {
+  printf 'ERROR: Cannot read/write template ./skills/octivi-bash-boilerplate/assets/templates/full-obb-script-embedded\n' >&2
+  exit 2
+}
+
+./octivi-bash-boilerplate-update --variant header \
+  "./skills/octivi-bash-boilerplate/assets/templates/header-only-script" \
+  "./skills/octivi-bash-boilerplate/assets/templates/full-obb-script-source"
+./octivi-bash-boilerplate-update \
+  "./skills/octivi-bash-boilerplate/assets/templates/full-obb-script-embedded"
+
+printf 'Generated skill templates.\n'

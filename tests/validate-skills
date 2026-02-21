@@ -1,0 +1,281 @@
+#!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2026  IMAGIN sp. z o.o.
+# SPDX-FileContributor: Marcin Engelmann <mengelmann@octivi.com>
+# SPDX-License-Identifier: MIT
+#
+# Validate Octivi Bash Boilerplate skill assets and template generation.
+
+# >>> OBB:BEGIN variant=header
+################################################################################
+# Octivi Bash Boilerplate (OBB) Header
+# Part of Octivi Bash Boilerplate https://github.com/octivi/bash-boilerplate
+################################################################################
+# Unofficial Bash "Strict Mode"
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+# Define common constants regardless if they are used in the script
+__my_name="$(basename "${BASH_SOURCE[0]}")"
+readonly __my_name
+__my_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly __my_dir
+__my_path="${__my_dir}/${__my_name}"
+# shellcheck disable=SC2034
+readonly __my_path
+__my_args="$*"
+# shellcheck disable=SC2034
+readonly __my_args
+# Set IFS to just newline and tab
+IFS=$'\n\t'
+################################################################################
+# <<< OBB:END
+
+# shellcheck source=/dev/null
+source "${__my_dir}/../octivi-bash-boilerplate"
+
+readonly SKILL_ROOT="${__my_dir}/../skills/octivi-bash-boilerplate"
+readonly GENERATE_TEMPLATES="${__my_dir}/../scripts/generate-skill-templates"
+readonly GENERATE_WORKFLOW="${__my_dir}/../.github/workflows/generate-skill-templates.yml"
+readonly TEMPLATE_DIR="${SKILL_ROOT}/assets/templates"
+readonly ROOT_OBB="${__my_dir}/../octivi-bash-boilerplate"
+readonly ROOT_OBB_HEADER="${__my_dir}/../octivi-bash-boilerplate-header"
+readonly ROOT_OBB_UPDATE="${__my_dir}/../octivi-bash-boilerplate-update"
+
+TMP_DIRS=()
+CAPTURED_OUTPUT=''
+CAPTURED_STATUS=0
+
+cleanup() {
+  local dir=''
+  for dir in "${TMP_DIRS[@]}"; do
+    [[ -n ${dir} ]] && rm -rf "${dir}"
+  done
+}
+
+trap cleanup EXIT
+
+fail() {
+  error "FAIL: $*"
+  exit 1
+}
+
+run_and_capture() {
+  local out=''
+  local status=0
+  set +e
+  out="$("$@" 2>&1)"
+  status=$?
+  set -e
+  CAPTURED_OUTPUT="${out}"
+  CAPTURED_STATUS=${status}
+}
+
+make_tmp_dir() {
+  local dir=''
+  dir="$(mktemp -d)"
+  TMP_DIRS+=("${dir}")
+  printf '%s\n' "${dir}"
+}
+
+assert_equal() {
+  local actual="$1"
+  local expected="$2"
+  [[ ${actual} == "${expected}" ]] || fail "Expected '${expected}', got '${actual}'"
+}
+
+assert_str_contains() {
+  local haystack="$1"
+  local expected="$2"
+  [[ ${haystack} == *"${expected}"* ]] || fail "Expected output to contain '${expected}'"
+}
+
+assert_file_contains() {
+  local file="$1"
+  local expected="$2"
+  grep -Fq -- "${expected}" "${file}" || fail "Expected '${expected}' in ${file}"
+}
+
+assert_file_not_contains() {
+  local file="$1"
+  local unexpected="$2"
+  if grep -Fq -- "${unexpected}" "${file}"; then
+    fail "Did not expect '${unexpected}' in ${file}"
+  fi
+}
+
+assert_files_equal() {
+  local a="$1"
+  local b="$2"
+  local diff_output=''
+  diff_output="$(diff -u "${a}" "${b}" || true)"
+  [[ -z "${diff_output}" ]] || {
+    print "${diff_output}"
+    fail "Files differ: ${a} vs ${b}"
+  }
+}
+
+assert_markers_balanced() {
+  local file="$1"
+  local rc=0
+
+  awk '
+    BEGIN { level=0 }
+    /^# >>> OBB:BEGIN($| )/ { level++; next }
+    /^# <<< OBB:END$/ {
+      level--
+      if (level < 0) {
+        exit 2
+      }
+      next
+    }
+    END {
+      if (level != 0) {
+        exit 3
+      }
+    }
+  ' "${file}" || rc=$?
+
+  case "${rc}" in
+    0) ;;
+    2) fail "Unmatched OBB END marker in ${file}" ;;
+    3) fail "Unmatched OBB BEGIN marker in ${file}" ;;
+    *) fail "Marker parsing failed for ${file}" ;;
+  esac
+}
+
+run_test() {
+  local name="$1"
+  shift
+  print "==> ${name}"
+  "$@"
+}
+
+test_marker_prefix_consistency() {
+  assert_file_contains "${ROOT_OBB_UPDATE}" "# >>> OBB:BEGIN variant=header"
+  assert_file_not_contains "${ROOT_OBB_UPDATE}" "# <<< OBB:BEGIN variant=header"
+}
+
+test_generator_script_header_marker() {
+  assert_file_contains "${GENERATE_TEMPLATES}" "# >>> OBB:BEGIN variant=header"
+  assert_file_contains "${GENERATE_TEMPLATES}" "# <<< OBB:END"
+  assert_file_not_contains "${GENERATE_TEMPLATES}" "# <<< OBB:BEGIN"
+}
+
+test_generate_workflow_wiring() {
+  assert_file_contains "${GENERATE_WORKFLOW}" "name: Generate Skill Templates"
+  assert_file_contains "${GENERATE_WORKFLOW}" "run: ./scripts/generate-skill-templates"
+  assert_file_contains "${GENERATE_WORKFLOW}" "run: ./tests/validate-skills"
+  assert_file_contains "${GENERATE_WORKFLOW}" "- octivi-bash-boilerplate"
+  assert_file_contains "${GENERATE_WORKFLOW}" "- octivi-bash-boilerplate-header"
+  assert_file_contains "${GENERATE_WORKFLOW}" "- octivi-bash-boilerplate-update"
+  assert_file_contains "${GENERATE_WORKFLOW}" "git add skills/octivi-bash-boilerplate/assets/templates"
+}
+
+test_generated_assets_are_up_to_date() {
+  local tmp=''
+  local snapshot=''
+
+  tmp="$(make_tmp_dir)"
+  snapshot="${tmp}/snapshot"
+  mkdir -p "${snapshot}"
+
+  cp -a "${TEMPLATE_DIR}" "${snapshot}/templates"
+
+  run_and_capture "${GENERATE_TEMPLATES}"
+  assert_equal "${CAPTURED_STATUS}" "0"
+  assert_str_contains "${CAPTURED_OUTPUT}" "Generated skill templates."
+
+  assert_files_equal "${snapshot}/templates/header-only-script" "${TEMPLATE_DIR}/header-only-script"
+  assert_files_equal "${snapshot}/templates/full-obb-script-source" "${TEMPLATE_DIR}/full-obb-script-source"
+  assert_files_equal "${snapshot}/templates/full-obb-script-embedded" "${TEMPLATE_DIR}/full-obb-script-embedded"
+}
+
+test_templates_are_ready_and_runnable() {
+  local tmp=''
+  local header=''
+  local full_source=''
+  local full_embedded=''
+  local out_file=''
+
+  assert_file_contains "${TEMPLATE_DIR}/header-only-script" "# >>> OBB:BEGIN variant=header source=local version=local"
+  assert_file_contains "${TEMPLATE_DIR}/full-obb-script-source" "# >>> OBB:BEGIN variant=header source=local version=local"
+  assert_file_contains "${TEMPLATE_DIR}/full-obb-script-embedded" "# >>> OBB:BEGIN variant=header source=local version=local"
+  assert_file_contains "${TEMPLATE_DIR}/full-obb-script-embedded" "# >>> OBB:BEGIN variant=full source=local version=local"
+
+  tmp="$(make_tmp_dir)"
+  header="${tmp}/header.sh"
+  full_source="${tmp}/full-source.sh"
+  full_embedded="${tmp}/full-embedded.sh"
+
+  cp "${TEMPLATE_DIR}/header-only-script" "${header}"
+  cp "${TEMPLATE_DIR}/full-obb-script-source" "${full_source}"
+  cp "${TEMPLATE_DIR}/full-obb-script-embedded" "${full_embedded}"
+  chmod +x "${header}" "${full_source}" "${full_embedded}"
+
+  bash -n "${header}" "${full_source}" "${full_embedded}"
+
+  if command -v shellcheck > /dev/null 2>&1; then
+    shellcheck "${header}" "${full_source}" "${full_embedded}"
+  else
+    warning "SKIPPED shellcheck validation (shellcheck not installed)"
+  fi
+
+  run_and_capture "${header}" -n "Alice"
+  assert_equal "${CAPTURED_STATUS}" "0"
+  assert_str_contains "${CAPTURED_OUTPUT}" "Hello Alice"
+
+  out_file="${tmp}/full-source.out"
+  run_and_capture env OBB_PATH="${ROOT_OBB}" "${full_source}" -o "${out_file}"
+  assert_equal "${CAPTURED_STATUS}" "0"
+  [[ -s "${out_file}" ]] || fail "Expected output file from full-source template"
+
+  out_file="${tmp}/full-embedded.out"
+  run_and_capture "${full_embedded}" -o "${out_file}"
+  assert_equal "${CAPTURED_STATUS}" "0"
+  [[ -s "${out_file}" ]] || fail "Expected output file from full-embedded template"
+}
+
+test_no_vendored_runtime_assets() {
+  local runtime_dir="${SKILL_ROOT}/assets/runtime"
+  if [[ -d "${runtime_dir}" ]] && find "${runtime_dir}" -mindepth 1 -print -quit | grep -q .; then
+    fail "Found vendored runtime assets in ${runtime_dir}"
+  fi
+}
+
+test_no_hardcoded_system_paths_in_skill_guidance() {
+  if rg -n "/usr/local/share/octivi-bash-boilerplate(-header|-update)?" \
+    "${SKILL_ROOT}/SKILL.md" \
+    "${SKILL_ROOT}/references" \
+    "${SKILL_ROOT}/assets/templates" > /dev/null; then
+    fail "Found hardcoded /usr/local/share path in skill docs/templates"
+  fi
+}
+
+test_marker_sanity_across_skill_sources() {
+  local file=''
+  while IFS= read -r file; do
+    assert_file_not_contains "${file}" "# <<< OBB:BEGIN"
+    assert_markers_balanced "${file}"
+  done < <(rg -l "OBB:BEGIN|OBB:END" "${SKILL_ROOT}" "${ROOT_OBB_UPDATE}" "${ROOT_OBB}" "${ROOT_OBB_HEADER}" | sort)
+}
+
+main() {
+  require_command cp || die 2 "Cannot find cp"
+  require_command diff || die 2 "Cannot find diff"
+  require_command find || die 2 "Cannot find find"
+  require_command grep || die 2 "Cannot find grep"
+  require_command rg || die 2 "Cannot find rg"
+  [[ -x "${GENERATE_TEMPLATES}" ]] || die 2 "Cannot execute ${GENERATE_TEMPLATES}"
+
+  run_test "marker_prefix_consistency" test_marker_prefix_consistency
+  run_test "generator_script_header_marker" test_generator_script_header_marker
+  run_test "marker_sanity_across_skill_sources" test_marker_sanity_across_skill_sources
+  run_test "generate_workflow_wiring" test_generate_workflow_wiring
+  run_test "no_vendored_runtime_assets" test_no_vendored_runtime_assets
+  run_test "generated_assets_are_up_to_date" test_generated_assets_are_up_to_date
+  run_test "templates_are_ready_and_runnable" test_templates_are_ready_and_runnable
+  run_test "no_hardcoded_system_paths_in_skill_guidance" test_no_hardcoded_system_paths_in_skill_guidance
+
+  ok "Skill validation passed"
+}
+
+main "$@"

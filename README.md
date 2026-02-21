@@ -39,6 +39,16 @@ Copy and paste this code at the beginning of your Bash script files.
 
 ## Install
 
+### AI agents skill
+
+This repository is also available as a skill for AI agents.
+
+Install it with:
+
+```bash
+npx skills add octivi/bash-boilerplate
+```
+
 ### Manual
 
 Download, verify checksums, and install all OBB files together:
