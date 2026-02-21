@@ -10,13 +10,14 @@ name: Generate Skill Templates
 on:
   push:
     branches:
-      - '**'
+      - "**"
     paths:
       - octivi-bash-boilerplate
       - octivi-bash-boilerplate-header
       - octivi-bash-boilerplate-update
     tags-ignore:
-      - '**'
+      - "**"
+  workflow_dispatch:
 
 permissions:
   contents: write
