@@ -242,7 +242,7 @@ test_no_vendored_runtime_assets() {
 }
 
 test_no_hardcoded_system_paths_in_skill_guidance() {
-  if rg -n "/usr/local/share/octivi-bash-boilerplate(-header|-update)?" \
+  if grep -R -n -E "/usr/local/share/octivi-bash-boilerplate(-header|-update)?" \
     "${SKILL_ROOT}/SKILL.md" \
     "${SKILL_ROOT}/references" \
     "${SKILL_ROOT}/assets/templates" > /dev/null; then
@@ -255,7 +255,7 @@ test_marker_sanity_across_skill_sources() {
   while IFS= read -r file; do
     assert_file_not_contains "${file}" "# <<< OBB:BEGIN"
     assert_markers_balanced "${file}"
-  done < <(rg -l "OBB:BEGIN|OBB:END" "${SKILL_ROOT}" "${ROOT_OBB_UPDATE}" "${ROOT_OBB}" "${ROOT_OBB_HEADER}" | sort)
+  done < <(grep -R -l -E "OBB:BEGIN|OBB:END" "${SKILL_ROOT}" "${ROOT_OBB_UPDATE}" "${ROOT_OBB}" "${ROOT_OBB_HEADER}" | sort)
 }
 
 main() {
@@ -263,7 +263,6 @@ main() {
   require_command diff || die 2 "Cannot find diff"
   require_command find || die 2 "Cannot find find"
   require_command grep || die 2 "Cannot find grep"
-  require_command rg || die 2 "Cannot find rg"
   [[ -x "${GENERATE_TEMPLATES}" ]] || die 2 "Cannot execute ${GENERATE_TEMPLATES}"
 
   run_test "marker_prefix_consistency" test_marker_prefix_consistency
