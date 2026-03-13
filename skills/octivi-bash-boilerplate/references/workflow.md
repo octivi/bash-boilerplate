@@ -9,6 +9,8 @@ This is the canonical procedure for new scripts, refactors, and mode migrations.
 - Define output contract: stdout/stderr format and exit codes.
 - Define side effects and cleanup strategy.
 
+If the script only shells out to another command with fixed arguments and does not add meaningful logic, stop here and keep it as a plain wrapper with no OBB header or marker blocks.
+
 ## 2. Choose One Integration Mode
 
 | Mode            | Choose when                                        | Notes                                                  |
@@ -18,6 +20,8 @@ This is the canonical procedure for new scripts, refactors, and mode migrations.
 | `full-embedded` | Medium/large scripts requiring standalone delivery | Keep `variant=full` marker block at script end         |
 
 If uncertain between full variants, prefer `full-source` during active development and `full-embedded` for portable distribution.
+
+This step does not apply to trivial wrappers covered above; they intentionally use no OBB integration.
 
 ## 3. Copy Ready Template
 
