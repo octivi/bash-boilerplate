@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck shell=bash
 
 # >>> OBB:BEGIN variant=header source=local version=local
 ################################################################################
