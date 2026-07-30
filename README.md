@@ -5,28 +5,29 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org/)
 [![Semantic Versioning](https://img.shields.io/badge/SemVer-2.0.0-blue)](https://semver.org/spec/v2.0.0.html)
 
-> If you are writing a script that is more than 100 lines long, or that uses non-straightforward control flow logic, you
-> should rewrite it in a more structured language now. --
+> If you are writing a script that is more than 100 lines long, or that uses non-straightforward
+> control flow logic, you should rewrite it in a more structured language now. --
 > [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
 
 ## Octivi Bash Boilerplate (OBB)
 
-Octivi Bash Boilerplate (OBB) is a lightweight starting point for Bash scripts that promotes consistent structure and
-safe defaults. With ready-to-use helpers and auto-generated documentation, it helps you ship maintainable CLI utilities
-faster and with fewer surprises.
+Octivi Bash Boilerplate (OBB) is a lightweight starting point for Bash scripts that promotes
+consistent structure and safe defaults. With ready-to-use helpers and auto-generated documentation,
+it helps you ship maintainable CLI utilities faster and with fewer surprises.
 
 ## Octivi Bash Boilerplate (OBB) Header
 
-Octivi Bash Boilerplate (OBB) Header is a minimalistic version of the Bash boilerplate for use in scripts.
-Copy and paste this code at the beginning of your Bash script files.
+Octivi Bash Boilerplate (OBB) Header is a minimalistic version of the Bash boilerplate for use in
+scripts. Copy and paste this code at the beginning of your Bash script files.
 
 ## Key features
 
-- Enforces [Unofficial Bash "Strict Mode"](http://redsymbol.net/articles/unofficial-bash-strict-mode/) to reduce
-  hard-to-track runtime errors
+- Enforces
+  [Unofficial Bash "Strict Mode"](http://redsymbol.net/articles/unofficial-bash-strict-mode/) to
+  reduce hard-to-track runtime errors
 - Enables verbose diagnostics through the `DEBUG` environment variable
-- Honors the `NO_COLOR` ([disabling colors](https://no-color.org/)) and `FORCE_COLOR` environment variables and
-  supports ANSI colors out of the box
+- Honors the `NO_COLOR` ([disabling colors](https://no-color.org/)) and `FORCE_COLOR` environment
+  variables and supports ANSI colors out of the box
 - Exposes logging helpers for uniform, readable output
 - Generates `-h` help text from inline comments, so documentation stays close to the code
 - Handles option parsing through
@@ -83,7 +84,9 @@ Install all OBB files with checksum verification:
     owner: "root"
     group: "root"
     mode: "{{ item.mode }}"
-    checksum: "sha256:https://github.com/octivi/bash-boilerplate/releases/download/v1.1.0/{{ item.name }}.sha256"
+    checksum:
+      "sha256:https://github.com/octivi/bash-boilerplate/releases/download/v1.1.0/{{ item.name
+      }}.sha256"
   loop:
     - { name: "octivi-bash-boilerplate", mode: "0644" }
     - { name: "octivi-bash-boilerplate-header", mode: "0644" }
@@ -96,8 +99,8 @@ Install all OBB files with checksum verification:
 
 ## Quick start: use OBB in scripts (with markers)
 
-The easiest workflow is to keep OBB in a marked block and let
-`octivi-bash-boilerplate-update` inject/update the content for you.
+The easiest workflow is to keep OBB in a marked block and let `octivi-bash-boilerplate-update`
+inject/update the content for you.
 
 ### Header variant (minimal)
 
@@ -126,7 +129,8 @@ Then update the marked block:
 
 Use this when you want OBB helper functions like `print`, `error`, `die`, `require_command`, etc.
 
-Important: place the full OBB marker block at the end of the script and keep your own logic above it.
+Important: place the full OBB marker block at the end of the script and keep your own logic above
+it.
 
 ```bash
 #!/usr/bin/env bash
@@ -167,8 +171,8 @@ Use `octivi-bash-boilerplate-update` to update scripts where OBB was copy-pasted
 `--variant` accepts `full` or `header`. Without `--variant`, each marked block must define
 `variant=full|header` in its `# >>> OBB:BEGIN ...` marker.
 
-When `-u/--use` is set, the script downloads release assets and verifies their `.sha256` checksums before updating any
-target files.
+When `-u/--use` is set, the script downloads release assets and verifies their `.sha256` checksums
+before updating any target files.
 
 If a target file has no OBB markers, it is skipped with a warning.
 
@@ -182,8 +186,9 @@ The updater writes explicit markers around embedded blocks:
 
 ## Projects that use Octivi Bash Boilerplate
 
-- [BorgBackup Wrapper](https://github.com/octivi/borg-backup-wrapper) - a wrapper around the deduplicating archiver
-  [BorgBackup](https://www.borgbackup.org/) that streamlines everyday tasks across multiple repositories.
+- [BorgBackup Wrapper](https://github.com/octivi/borg-backup-wrapper) - a wrapper around the
+  deduplicating archiver [BorgBackup](https://www.borgbackup.org/) that streamlines everyday tasks
+  across multiple repositories.
 
 ## How to test on a specific Bash version
 

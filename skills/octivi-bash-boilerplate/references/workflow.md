@@ -9,7 +9,8 @@ This is the canonical procedure for new scripts, refactors, and mode migrations.
 - Define output contract: stdout/stderr format and exit codes.
 - Define side effects and cleanup strategy.
 
-If the script only shells out to another command with fixed arguments and does not add meaningful logic, stop here and keep it as a plain wrapper with no OBB header or marker blocks.
+If the script only shells out to another command with fixed arguments and does not add meaningful
+logic, stop here and keep it as a plain wrapper with no OBB header or marker blocks.
 
 ## 2. Choose One Integration Mode
 
@@ -19,9 +20,11 @@ If the script only shells out to another command with fixed arguments and does n
 | `full-source`   | Medium/large scripts with reusable helpers         | Source OBB library via `OBB_PATH` or runtime discovery |
 | `full-embedded` | Medium/large scripts requiring standalone delivery | Keep `variant=full` marker block at script end         |
 
-If uncertain between full variants, prefer `full-source` during active development and `full-embedded` for portable distribution.
+If uncertain between full variants, prefer `full-source` during active development and
+`full-embedded` for portable distribution.
 
-This step does not apply to trivial wrappers covered above; they intentionally use no OBB integration.
+This step does not apply to trivial wrappers covered above; they intentionally use no OBB
+integration.
 
 ## 3. Copy Ready Template
 
@@ -46,8 +49,7 @@ scripts/generate-skill-templates
 
 ## 5. Update OBB Marker Blocks
 
-- Use:
-  `octivi-bash-boilerplate-update ./script.sh`
+- Use: `octivi-bash-boilerplate-update ./script.sh`
 - For `full-embedded`, ensure block is populated before delivery.
 - Never manually edit generated OBB payload inside marker blocks.
 

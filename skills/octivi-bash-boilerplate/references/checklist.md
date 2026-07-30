@@ -4,13 +4,15 @@ Mark every item before finalizing a script.
 
 ## Wrapper Exception
 
-If a script is only a very simple wrapper that invokes another command with predefined arguments, do not add any OBB header or marker blocks. For that case, marker-specific gates (`Q-03`, `Q-04`, `Q-17`) are not applicable.
+If a script is only a very simple wrapper that invokes another command with predefined arguments, do
+not add any OBB header or marker blocks. For that case, marker-specific gates (`Q-03`, `Q-04`,
+`Q-17`) are not applicable.
 
 ## Pass/Fail Gates
 
 | ID     | Level       | Gate                    | Pass criteria                                                                                      |
 | ------ | ----------- | ----------------------- | -------------------------------------------------------------------------------------------------- |
-| `Q-01` | Required    | Strict mode             | `set -o errexit -o nounset -o pipefail` is enabled                                                                     |
+| `Q-01` | Required    | Strict mode             | `set -o errexit -o nounset -o pipefail` is enabled                                                 |
 | `Q-02` | Required    | `IFS` safety            | `IFS` is restricted to newline and tab                                                             |
 | `Q-03` | Required    | Marker integrity        | Marker syntax is valid and paired (`# >>> OBB:BEGIN ...` / `# <<< OBB:END`)                        |
 | `Q-04` | Required    | Marker isolation        | Business logic is outside OBB marker blocks                                                        |

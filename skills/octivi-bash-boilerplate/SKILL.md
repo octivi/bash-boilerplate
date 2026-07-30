@@ -1,13 +1,18 @@
 ---
 name: octivi-bash-boilerplate
-description: Create, refactor, and migrate Bash scripts with Octivi Bash Boilerplate (OBB) using marker blocks (`# >>> OBB:BEGIN ...` / `# <<< OBB:END`). Use when selecting `header` vs `full` integration, copying ready templates, updating marker blocks, and validating script quality with deterministic checks.
+description:
+  Create, refactor, and migrate Bash scripts with Octivi Bash Boilerplate (OBB) using marker blocks
+  (`# >>> OBB:BEGIN ...` / `# <<< OBB:END`). Use when selecting `header` vs `full` integration,
+  copying ready templates, updating marker blocks, and validating script quality with deterministic
+  checks.
 ---
 
 # Octivi Bash Boilerplate
 
 Use this skill for any Bash script task that should follow OBB conventions.
 
-Do not add any OBB header or marker blocks to a script whose only job is to invoke another command with fixed arguments. Keep such wrappers plain and minimal unless they grow real script logic.
+Do not add any OBB header or marker blocks to a script whose only job is to invoke another command
+with fixed arguments. Keep such wrappers plain and minimal unless they grow real script logic.
 
 ## Inputs Required
 
@@ -20,7 +25,8 @@ If any of these are missing, infer minimally and state assumptions.
 
 ## Decision Table
 
-First decide whether the script should use OBB at all. If it is a very simple wrapper around another command, use no OBB integration. Otherwise choose exactly one mode per script:
+First decide whether the script should use OBB at all. If it is a very simple wrapper around another
+command, use no OBB integration. Otherwise choose exactly one mode per script:
 
 | Mode            | Use when                                                        | Tradeoff                                  |
 | --------------- | --------------------------------------------------------------- | ----------------------------------------- |
@@ -31,12 +37,12 @@ First decide whether the script should use OBB at all. If it is a very simple wr
 ## Execution Steps
 
 1. Read `references/workflow.md` and apply the flow for new/refactor/migration.
-2. If the script is only a thin wrapper that calls another command with predefined arguments, stop before adding any OBB header or marker blocks.
+2. If the script is only a thin wrapper that calls another command with predefined arguments, stop
+   before adding any OBB header or marker blocks.
 3. Copy one ready template to destination:
    `cp skills/octivi-bash-boilerplate/assets/templates/<header-only-script|full-obb-script-source|full-obb-script-embedded> ./script.sh`.
 4. Implement business logic outside OBB marker blocks.
-5. If a marker block is unpopulated or stale, run:
-   `octivi-bash-boilerplate-update <script>`.
+5. If a marker block is unpopulated or stale, run: `octivi-bash-boilerplate-update <script>`.
 6. Run quality gates from `references/checklist.md` and resolve all required failures.
 
 ## Output Contract
@@ -64,9 +70,9 @@ The final response must include:
 
 ## Non-negotiable rules
 
-- Keep marker syntax exact:
-  `# >>> OBB:BEGIN variant=header|full` and `# <<< OBB:END`.
-- Do not add OBB headers or marker blocks to trivial wrapper scripts that only execute another command with fixed arguments.
+- Keep marker syntax exact: `# >>> OBB:BEGIN variant=header|full` and `# <<< OBB:END`.
+- Do not add OBB headers or marker blocks to trivial wrapper scripts that only execute another
+  command with fixed arguments.
 - Keep all business logic outside OBB marker blocks.
 - For full embedded mode, keep `variant=full` marker block at end of script.
 - Never source `octivi-bash-boilerplate-header` as a library file.
