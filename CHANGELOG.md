@@ -1,5 +1,15 @@
 # Changelog
 
+## [v1.2.0] - 2026-07-30
+
+### Added
+
+- Add an installable OBB skill with ready-to-use templates for AI agents ([`e7917cf`](https://github.com/octivi/bash-boilerplate/commit/e7917cf), [`53f5d03`](https://github.com/octivi/bash-boilerplate/commit/53f5d03), [`14379aa`](https://github.com/octivi/bash-boilerplate/commit/14379aa)) (Marcin Engelmann)
+
+### Fixed
+
+- Correct the `OBB:BEGIN` marker in `octivi-bash-boilerplate-update` so embedded header updates are recognized ([`c0b6959`](https://github.com/octivi/bash-boilerplate/commit/c0b6959)) (Marcin Engelmann)
+
 ## [v1.1.0] - 2026-02-19
 
 ### Changed
@@ -27,5 +37,6 @@
 
 - Publish the first public release of Octivi Bash Boilerplate ([`7813171`](https://github.com/octivi/bash-boilerplate/commit/7813171), [`8e830c5`](https://github.com/octivi/bash-boilerplate/commit/8e830c5)) (Marcin Engelmann)
 
+[v1.2.0]: https://github.com/octivi/bash-boilerplate/releases/tag/v1.2.0
 [v1.1.0]: https://github.com/octivi/bash-boilerplate/releases/tag/v1.1.0
 [v1.0.0]: https://github.com/octivi/bash-boilerplate/releases/tag/v1.0.0
